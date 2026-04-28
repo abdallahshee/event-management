@@ -12,7 +12,7 @@ const authUsers = authSchema.table('users', {
 export const profile = pgTable('profile', {
   id: uuid('id').primaryKey().references(() => authUsers.id, { onDelete: 'cascade' }),         // same UUID as auth.users.id
   firstName: text('first_name').notNull(),
-  lasttName: text('last_name').notNull(),
+  lastName: text('last_name').notNull(),
   avatarUrl: text('avatar_url'),
   role: text("role", { enum: ['admin', 'user'] }).default('user').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

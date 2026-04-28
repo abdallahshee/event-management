@@ -1,11 +1,11 @@
-import { uuid, pgTable, numeric, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, numeric, text, timestamp } from "drizzle-orm/pg-core";
 import { booking } from "./booking.schema";
 import { relations } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 export const payment = pgTable('payment', {
   id: text('id').primaryKey().$default(() => nanoid(16)),
-  bookingId: uuid('booking_id').notNull().references(() => booking.id),
+  bookingId: text('booking_id').notNull().references(() => booking.id),
   amount: numeric('amount', { precision: 10, scale: 2 }).notNull(),
   currency: text('currency').notNull().default('USD'),
   provider: text('provider').notNull(),           // 'stripe' | 'mpesa' | etc.

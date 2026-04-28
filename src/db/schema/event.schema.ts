@@ -1,4 +1,4 @@
-import { uuid, text, numeric, integer, timestamp, pgTable } from "drizzle-orm/pg-core";
+import {text, numeric, integer, timestamp, pgTable } from "drizzle-orm/pg-core";
 
 import { relations } from "drizzle-orm";
 
@@ -12,7 +12,8 @@ export const event = pgTable('event', {
   title: text('title').notNull(),
   description: text('description'),
   location: text('location'),
-  price: numeric('price', { precision: 10, scale: 2 }).notNull().default('0'),
+  imageUrl:text('image_url'),
+  price: numeric('price', { precision: 10, scale: 2 }).notNull().default('1'),
   capacity: integer('capacity').notNull(),
   slotsRemaining: integer('slots_remaining').notNull(),
   startsAt: timestamp('starts_at', { withTimezone: true }).notNull(),
