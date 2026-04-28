@@ -16,8 +16,10 @@ export const EventSchema=createSelectSchema(event,{
 .pick({
     title:true,
     description:true,
-    imageUrl:true,
+    coverImage:true,
+    category:true,
     location:true,
+    isFeatured:true,
     price:true,
     capacity:true,
     startsAt:true,
