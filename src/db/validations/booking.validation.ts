@@ -7,14 +7,15 @@
 //   updatedAt:   timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().$onUpdate(() => new Date()),
 // })
 
-import { createSelectSchema } from "drizzle-zod";
+import { createInsertSchema } from "drizzle-zod";
 import { booking } from "../schema";
 import z from "zod"
 
-export const BookingSchema = createSelectSchema(booking, {
-
-}).pick({
-    totalAmount: true,
+export const BookingSchema = createInsertSchema(booking, {
+  totalAmount: z.coerce.number().min(0, "Total amount cannot be negative"),
+})
+.pick({
+  totalAmount: true,
 })
 
-export type BookingRequest=z.infer<typeof BookingSchema>
+export type BookingRequest = z.infer<typeof BookingSchema>

@@ -10,15 +10,26 @@
 //   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().$onUpdate(() => new Date()),
 // })
 
-import { createSelectSchema } from "drizzle-zod";
+import { createInsertSchema } from "drizzle-zod";
 import { payment } from "../schema";
+import z from "zod"
 
-export const PaymentSchema=createSelectSchema(payment,{
+const supportedCurrencies = ['USD', 'KES', 'EUR', 'GBP'] as const
+const supportedProviders = ['stripe', 'mpesa', 'paypal', 'flutterwave'] as const
 
-}).pick({
-    bookingId:true,
-    amount:true,
-    currency:true,
-    provider:true,
-    transactionId:true,
+export const PaymentSchema = createInsertSchema(payment, {
+  bookingId: z.string().uuid("Invalid booking ID"),
+  amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
+  currency: z.enum(supportedCurrencies, { message: "Unsupported currency" }).default('USD'),
+  provider: z.enum(supportedProviders, { message: "Unsupported payment provider" }),
+  transactionId: z.string().min(1, "Transaction ID is required").optional(),
 })
+.pick({
+  bookingId: true,
+  amount: true,
+  currency: true,
+  provider: true,
+  transactionId: true,
+})
+
+export type PaymentRequest = z.infer<typeof PaymentSchema>

@@ -7,10 +7,11 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
-
+import '@mantine/core/styles.css';
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
+import { Container, MantineProvider } from '@mantine/core'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -46,7 +47,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <MantineProvider>
+     
+
+      
+      <body>   <Container size='xl'>
         {children}
         <TanStackDevtools
           config={{
@@ -61,7 +66,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           ]}
         />
         <Scripts />
+           </Container>
       </body>
+     
+      </MantineProvider>
     </html>
   )
 }

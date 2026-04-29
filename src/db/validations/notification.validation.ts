@@ -19,14 +19,30 @@
 //   createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
 // })
 
-import { createSelectSchema } from "drizzle-zod";
+import { createInsertSchema } from "drizzle-zod";
 import { notification } from "../schema";
+import z from "zod"
 
-export const NotificationSchema=createSelectSchema(notification,{
+const notificationTypes = [
+  'booking_confirmed',
+  'booking_cancelled',
+  'event_cancelled',
+  'event_reminder',
+  'refund_processed',
+  'review_received',
+] as const
 
-}).pick({
-    title:true,
-    metadata:true,
-    type:true,
-    body:true,
+export const NotificationSchema = createInsertSchema(notification, {
+  title: z.string().min(1, "Title is required").max(100, "Title too long"),
+  body: z.string().min(1, "Body is required").max(500, "Body too long"),
+  type: z.enum(notificationTypes, { message: "Invalid notification type" }),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
+.pick({
+  title: true,
+  body: true,
+  type: true,
+  metadata: true,
+})
+
+export type NotificationRequest = z.infer<typeof NotificationSchema>

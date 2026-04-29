@@ -17,13 +17,13 @@ export const event = pgTable('event', {
   price: numeric('price', { precision: 10, scale: 2 }).notNull().default('1'),
   capacity: integer('capacity').notNull(),
   slotsRemaining: integer('slots_remaining').notNull(),
-  startsAt: timestamp('starts_at', { withTimezone: true }).notNull(),
-  endsAt: timestamp('ends_at', { withTimezone: true }).notNull(),
+  startsAt: timestamp('starts_at', { withTimezone: true,mode:"string" }).notNull(),
+  endsAt: timestamp('ends_at', { withTimezone: true,mode:"string" }).notNull(),
   category: text('category', {enum: ['music', 'tech', 'food', 'sports', 'arts', 'business']
   }),
   status: text('status', { enum: ['draft', 'published', 'cancelled'] }).default('draft').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().$onUpdate(() => new Date()),
+  createdAt: timestamp('created_at', { withTimezone: true,mode:"string" }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true,mode:"string" }).notNull().$onUpdate(() => new Date().toISOString()),
 })
 
 export const eventRelations = relations(event, ({ many }) => ({

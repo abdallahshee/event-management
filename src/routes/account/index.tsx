@@ -1,9 +1,118 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { useForm, schemaResolver } from '@mantine/form'
+import { TextInput, PasswordInput, Button, Paper, Divider, Stack, Alert } from '@mantine/core'
+import { useState } from 'react'
+import { ProfileSignInSchema, type ProfileSignInRequest } from '#/db/validations/profile.validation'
+import { getSupabaseBrowserClient } from '#/db/supabase/browserClient'
+import { AlertCircle } from 'lucide-react'
+
 
 export const Route = createFileRoute('/account/')({
-  component: RouteComponent,
+  component: SignInPage,
 })
 
-function RouteComponent() {
-  return <div>Hello "/account/"!</div>
+function SignInPage() {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+
+  const form = useForm<ProfileSignInRequest>({
+    validate: schemaResolver(ProfileSignInSchema, { sync: true }),
+    validateInputOnBlur:true,
+    initialValues: {
+      email: '',
+      password: '',
+    },
+  })
+
+  const handleSubmit = async (values: ProfileSignInRequest) => {
+    setLoading(true)
+    setError(null)
+
+    const { error: signInError } = await getSupabaseBrowserClient().auth.signInWithPassword({
+      email: values.email,
+      password: values.password,
+    })
+
+    setLoading(false)
+
+    if (signInError) {
+      setError(signInError.message)
+      return
+    }
+
+    router.navigate({ to: '/' })
+  }
+
+  return (
+    <>
+      {/* Header */}
+      <div className="mb-8 text-center">
+        <p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+          Welcome back
+        </p>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Don't have an account?{' '}
+          <Link to="/account/signup" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
+            Sign up
+          </Link>
+        </p>
+      </div>
+
+      <Paper withBorder radius="lg" p="xl" className="shadow-sm">
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Stack gap="md">
+
+            {error && (
+              <Alert
+                variant="light"
+                color="red"
+                radius="md"
+                icon={<AlertCircle size={16} />}
+              >
+                <span className="text-sm">{error}</span>
+              </Alert>
+            )}
+
+            <TextInput
+              label="Email address"
+              placeholder="you@example.com"
+              type="email"
+              radius="md"
+              {...form.getInputProps('email')}
+            />
+
+            <PasswordInput
+              label="Password"
+              placeholder="Your password"
+              radius="md"
+              {...form.getInputProps('password')}
+            />
+
+            <div className="flex justify-end">
+              <Link
+                to="/account/forgot-password"
+                className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
+            <Divider />
+
+            <Button
+              type="submit"
+              fullWidth
+              radius="md"
+              color="blue"
+              loading={loading}
+            >
+              Sign in
+            </Button>
+
+          </Stack>
+        </form>
+      </Paper>
+    </>
+  )
 }

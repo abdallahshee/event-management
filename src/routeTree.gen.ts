@@ -17,6 +17,7 @@ import { Route as AccountIndexRouteImport } from './routes/account/index'
 import { Route as EventsMyEventsRouteImport } from './routes/events/my-events'
 import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
 import { Route as AccountSignupRouteImport } from './routes/account/signup'
+import { Route as AccountForgotPasswordRouteImport } from './routes/account/forgot-password'
 import { Route as EventsEventIdEditRouteImport } from './routes/events/$eventId.edit'
 
 const EventsRouteRoute = EventsRouteRouteImport.update({
@@ -59,6 +60,11 @@ const AccountSignupRoute = AccountSignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => AccountRouteRoute,
 } as any)
+const AccountForgotPasswordRoute = AccountForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => AccountRouteRoute,
+} as any)
 const EventsEventIdEditRoute = EventsEventIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRouteRouteWithChildren
   '/events': typeof EventsRouteRouteWithChildren
+  '/account/forgot-password': typeof AccountForgotPasswordRoute
   '/account/signup': typeof AccountSignupRoute
   '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/events/my-events': typeof EventsMyEventsRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account/forgot-password': typeof AccountForgotPasswordRoute
   '/account/signup': typeof AccountSignupRoute
   '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/events/my-events': typeof EventsMyEventsRoute
@@ -90,6 +98,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/account': typeof AccountRouteRouteWithChildren
   '/events': typeof EventsRouteRouteWithChildren
+  '/account/forgot-password': typeof AccountForgotPasswordRoute
   '/account/signup': typeof AccountSignupRoute
   '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/events/my-events': typeof EventsMyEventsRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/events'
+    | '/account/forgot-password'
     | '/account/signup'
     | '/events/$eventId'
     | '/events/my-events'
@@ -112,6 +122,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account/forgot-password'
     | '/account/signup'
     | '/events/$eventId'
     | '/events/my-events'
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/events'
+    | '/account/forgot-password'
     | '/account/signup'
     | '/events/$eventId'
     | '/events/my-events'
@@ -195,6 +207,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountSignupRouteImport
       parentRoute: typeof AccountRouteRoute
     }
+    '/account/forgot-password': {
+      id: '/account/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/account/forgot-password'
+      preLoaderRoute: typeof AccountForgotPasswordRouteImport
+      parentRoute: typeof AccountRouteRoute
+    }
     '/events/$eventId/edit': {
       id: '/events/$eventId/edit'
       path: '/edit'
@@ -206,11 +225,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AccountRouteRouteChildren {
+  AccountForgotPasswordRoute: typeof AccountForgotPasswordRoute
   AccountSignupRoute: typeof AccountSignupRoute
   AccountIndexRoute: typeof AccountIndexRoute
 }
 
 const AccountRouteRouteChildren: AccountRouteRouteChildren = {
+  AccountForgotPasswordRoute: AccountForgotPasswordRoute,
   AccountSignupRoute: AccountSignupRoute,
   AccountIndexRoute: AccountIndexRoute,
 }
