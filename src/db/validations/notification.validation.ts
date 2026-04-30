@@ -23,7 +23,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { notification } from "../schema";
 import z from "zod"
 
-const notificationTypes = [
+export const NotificationTypes = [
   'booking_confirmed',
   'booking_cancelled',
   'event_cancelled',
@@ -32,17 +32,34 @@ const notificationTypes = [
   'review_received',
 ] as const
 
-export const NotificationSchema = createInsertSchema(notification, {
+
+export const CreateNotificationSchema = createInsertSchema(notification, {
   title: z.string().min(1, "Title is required").max(100, "Title too long"),
   body: z.string().min(1, "Body is required").max(500, "Body too long"),
-  type: z.enum(notificationTypes, { message: "Invalid notification type" }),
-  metadata: z.record(z.string(), z.unknown()).optional(),
+  type: z.enum(NotificationTypes, { message: "Invalid notification type" }),
 })
 .pick({
   title: true,
   body: true,
   type: true,
-  metadata: true,
+  userId:true
+})
+export const NoteByIdSchema=z.object({
+    type:z.enum([...NotificationTypes]),
+    notificationId:z.string().min(1)
 })
 
-export type NotificationRequest = z.infer<typeof NotificationSchema>
+export const NotesByUserIdSchema=z.object({
+    type:z.enum([...NotificationTypes]),
+    userId:z.string().min(1),
+    page:z.number(),
+    limit:z.number()
+})
+
+export const NotesSchema=z.object({
+    type:z.enum([...NotificationTypes]),
+    page:z.number(),
+    limit:z.number()
+})
+
+export type CreateNotificationRequest = z.infer<typeof CreateNotificationSchema>

@@ -8,14 +8,12 @@ import '@mantine/dates/styles.css'
 import { useState, useEffect } from 'react'
 import { Search, Calendar, MapPin, Users, Clock, ImageOff, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useDebouncedValue } from '@mantine/hooks'
-import type { InferSelectModel } from 'drizzle-orm'
-import { event } from '#/db/schema'
+import type { Event } from '#/db/validations/event.validation'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
 })
 
-type Event = InferSelectModel<typeof event>
 
 const CATEGORY_COLORS: Record<string, string> = {
   music: 'pink', tech: 'blue', food: 'orange',
@@ -33,7 +31,7 @@ const MOCK_EVENTS: Event[] = [
     title: ['Nairobi Tech Summit 2025', 'East Africa Business Forum', 'Creative Arts Festival', 'Startup Pitch Night', 'Women in Tech Conference', 'Digital Marketing Masterclass'][i % 6],
     description: 'Join us for an incredible event experience.',
     category: (['music', 'tech', 'food', 'sports', 'arts', 'business'] as const)[i % 6],
-    location: ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru'][i % 4],
+    locationId: ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru'][i % 4],
     price: ['0', '500', '1500', '2500', '5000'][i % 5],
     capacity: 100 + i * 10,
     slotsRemaining: Math.max(0, 80 - i * 3),
@@ -50,7 +48,7 @@ const MOCK_EVENTS: Event[] = [
     title: 'Savanna Music Festival 2025',
     description: 'A celebration of African music and culture under the open sky.',
     category: 'music' as const,
-    location: 'Uhuru Gardens, Nairobi',
+    locationId: 'Uhuru Gardens, Nairobi',
     price: '3500',
     capacity: 2000,
     slotsRemaining: 15,
@@ -156,10 +154,10 @@ function FeaturedEvents({ events }: { events: Event[] }) {
                     {formatDate(ev.startsAt)} — {formatDate(ev.endsAt)}
                   </span>
                 </Group>
-                {ev.location && (
+                {ev.locationId && (
                   <Group gap={6}>
                     <MapPin size={13} className="text-slate-400" />
-                    <span className="text-xs text-slate-500 dark:text-slate-400">{ev.location}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{ev.locationId}</span>
                   </Group>
                 )}
                 <Group gap={6}>
@@ -247,10 +245,10 @@ function EventCard({ event }: { event: Event }) {
             {event.title}
           </p>
           <Stack gap={4} mt={2}>
-            {event.location && (
+            {event.locationId && (
               <Group gap={6} wrap="nowrap">
                 <MapPin size={12} className="shrink-0 text-slate-400" />
-                <span className="truncate text-xs text-slate-500 dark:text-slate-400">{event.location}</span>
+                <span className="truncate text-xs text-slate-500 dark:text-slate-400">{event.locationId}</span>
               </Group>
             )}
             <Group gap={6} wrap="nowrap">
@@ -298,7 +296,7 @@ function HomePage() {
   const filtered = MOCK_EVENTS.filter(e => {
     const matchesSearch =
       e.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      (e.location ?? '').toLowerCase().includes(debouncedSearch.toLowerCase())
+      (e.locationId ?? '').toLowerCase().includes(debouncedSearch.toLowerCase())
 
     const matchesCategory = activeCategory === 'all' || e.category === activeCategory
 

@@ -11,11 +11,15 @@ import { createInsertSchema } from "drizzle-zod";
 import { booking } from "../schema";
 import z from "zod"
 
-export const BookingSchema = createInsertSchema(booking, {
-  totalAmount: z.coerce.number().min(0, "Total amount cannot be negative"),
+export const CreateBookingSchema = createInsertSchema(booking, {
+  eventId: z.string().min(1),
+  userId:z.string().min(1),
+  amount:z.number().min(1)
 })
 .pick({
-  totalAmount: true,
+  eventId: true,
+  userId:true,
+  amount:true
 })
 
-export type BookingRequest = z.infer<typeof BookingSchema>
+export type UpdateBookingRequest = z.infer<typeof CreateBookingSchema>

@@ -2,7 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useForm, schemaResolver } from '@mantine/form'
 import { TextInput, PasswordInput, Button, Paper, Divider, Stack, Group, Checkbox } from '@mantine/core'
 import { useState } from 'react'
-import { ProfileSignUpSchema, type ProfileSignUpRequest } from '#/db/validations/profile.validation'
+import { ProfileSignUpSchema, type SignUpRequest } from '#/db/validations/profile.validation'
 import { getSupabaseBrowserClient } from '#/db/supabase/browserClient'
 import { Alert } from '@mantine/core'
 import { AlertCircle } from 'lucide-react'
@@ -16,7 +16,7 @@ function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
-  const form = useForm<ProfileSignUpRequest & { terms: boolean }>({
+  const form = useForm<SignUpRequest & { terms: boolean }>({
     validate: schemaResolver(ProfileSignUpSchema.and(
       z.object({ terms: z.literal(true, { error: () => ({ message: 'You must agree to the terms' }) }) })
     ), { sync: true }),
@@ -31,7 +31,7 @@ function SignUpPage() {
     },
   })
 
-  const handleSubmit = async (values: ProfileSignUpRequest) => {
+  const handleSubmit = async (values: SignUpRequest) => {
     setLoading(true)
     setError(null)
 

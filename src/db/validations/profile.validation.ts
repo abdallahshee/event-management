@@ -38,7 +38,7 @@ export const ProfileSignUpSchema = createInsertSchema(profile, {
   path: ["confirmPassword"],
 })
 
-export const ProfileSignInSchema = z.object({
+export const SignInSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 })
@@ -58,7 +58,7 @@ export const UpdateProfileSchema = createInsertSchema(profile, {
   avatarUrl: true,
 })
 
-export type ProfileSignUpRequest = z.infer<typeof ProfileSignUpSchema>
-export type ProfileSignInRequest = z.infer<typeof ProfileSignInSchema>
+export type SignUpRequest = z.infer<typeof ProfileSignUpSchema>
+export type SignInRequest = z.infer<typeof SignInSchema>
 export type EmailRequest = z.infer<typeof EmailSchema>
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileSchema>

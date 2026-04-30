@@ -17,19 +17,28 @@ import z from "zod"
 const supportedCurrencies = ['USD', 'KES', 'EUR', 'GBP'] as const
 const supportedProviders = ['stripe', 'mpesa', 'paypal', 'flutterwave'] as const
 
-export const PaymentSchema = createInsertSchema(payment, {
-  bookingId: z.string().uuid("Invalid booking ID"),
-  amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
+export const GetPaymentsSchema=z.object({
+  page:z.number().nullable(),
+  limit:z.number().nullable(),
+  provider:z.string().nullable()
+})
+
+export const CreatePaymentSchema = createInsertSchema(payment, {
+  bookingId: z.string(),
+  userId:z.string(),
+  amount: z.number().min(1, "Amount must be greater than 0"),
   currency: z.enum(supportedCurrencies, { message: "Unsupported currency" }).default('USD'),
   provider: z.enum(supportedProviders, { message: "Unsupported payment provider" }),
-  transactionId: z.string().min(1, "Transaction ID is required").optional(),
+  referenceNumber: z.string().min(1, "Transaction ID is required"),
 })
 .pick({
   bookingId: true,
   amount: true,
   currency: true,
   provider: true,
-  transactionId: true,
+  referenceNumber: true,
+  userId:true
+  
 })
 
-export type PaymentRequest = z.infer<typeof PaymentSchema>
+export type CreatePaymentRequest = z.infer<typeof CreatePaymentSchema>

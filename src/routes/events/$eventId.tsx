@@ -41,7 +41,7 @@ const MOCK_EVENT: Event = {
   title: 'Nairobi Tech Summit 2025',
   description: `Join us for the biggest tech conference in East Africa. The Nairobi Tech Summit brings together innovators, engineers, founders, and investors from across the continent for two days of talks, workshops, and networking.\n\nExpect keynotes from industry leaders, hands-on sessions covering AI, cloud infrastructure, fintech, and mobile-first development, plus dedicated time to connect with fellow builders shaping Africa's tech future.\n\nWhether you're a seasoned engineer or just starting out, this summit is designed to inspire, educate, and connect.`,
   category: 'tech',
-  location: 'Kenyatta International Convention Centre, Nairobi',
+  locationId: 'Kenyatta International Convention Centre, Nairobi',
   price: '2500',
   capacity: 500,
   slotsRemaining: 120,
@@ -190,7 +190,7 @@ function EventDetailPage() {
               </Group>
             </Paper>
 
-            {ev.location && (
+            {ev.locationId && (
               <Paper withBorder radius="md" p="md" className="shadow-sm">
                 <Group gap="sm" wrap="nowrap">
                   <ThemeIcon variant="light" color="teal" radius="md" size={36}>
@@ -199,7 +199,7 @@ function EventDetailPage() {
                   <div>
                     <p className="text-xs text-slate-500 dark:text-slate-400">Location</p>
                     <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
-                      {ev.location}
+                      {ev.locationId}
                     </p>
                   </div>
                 </Group>

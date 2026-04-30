@@ -2,7 +2,7 @@ import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useForm, schemaResolver } from '@mantine/form'
 import { TextInput, PasswordInput, Button, Paper, Divider, Stack, Alert } from '@mantine/core'
 import { useState } from 'react'
-import { ProfileSignInSchema, type ProfileSignInRequest } from '#/db/validations/profile.validation'
+import { SignInSchema, type SignInRequest } from '#/db/validations/profile.validation'
 import { getSupabaseBrowserClient } from '#/db/supabase/browserClient'
 import { AlertCircle } from 'lucide-react'
 
@@ -16,8 +16,8 @@ function SignInPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const form = useForm<ProfileSignInRequest>({
-    validate: schemaResolver(ProfileSignInSchema, { sync: true }),
+  const form = useForm<SignInRequest>({
+    validate: schemaResolver(SignInSchema, { sync: true }),
     validateInputOnBlur:true,
     initialValues: {
       email: '',
@@ -25,7 +25,7 @@ function SignInPage() {
     },
   })
 
-  const handleSubmit = async (values: ProfileSignInRequest) => {
+  const handleSubmit = async (values: SignInRequest) => {
     setLoading(true)
     setError(null)
 
