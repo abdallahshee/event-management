@@ -1,194 +1,342 @@
-Welcome to your new TanStack Start app! 
+# Event Management App
 
-# Getting Started
+A modern event management platform built with TanStack Start, React, and Supabase that allows authenticated users to browse and book events while giving administrators full control over event creation and management.
 
-To run this application:
+---
+
+## Overview
+
+This application is designed to simplify event booking and event administration.
+
+Users can:
+
+* Sign up and log in securely
+* Browse available events
+* Book events
+* View their booked events and booking history
+
+Administrators can:
+
+* Create new events
+* Edit event details
+* Delete events
+* Manage available event listings
+
+The system ensures a clean separation between user permissions and admin capabilities.
+
+---
+
+## Features
+
+### User Features
+
+* Secure authentication
+* Browse available events
+* Book events
+* View booked events
+* Access personal booking history
+* Responsive design across devices
+* Email notifications for bookings and event updates
+
+### Admin Features
+
+* Create events
+* Edit event information
+* Delete events
+* Cancel events when unavoidable circumstances occur
+* Manage event availability
+* Restricted admin-only access to event management
+
+### Notification Features
+
+* Booking confirmation emails
+* Payment confirmation notifications
+* Refund notifications
+* Event cancellation notifications
+* Newly created event notifications
+
+---
+
+## Tech Stack
+
+### Frontend
+
+* TanStack Start
+* React
+* TypeScript
+* Tailwind CSS
+* Mantine UI
+
+### Backend / Backend as a Service (BaaS)
+
+* Supabase
+
+  * Authentication
+  * PostgreSQL Database
+  * File Storage
+  * Row-Level Security (RLS)
+
+### Deployment
+
+* Vercel
+
+---
+
+## Core Functionality
+
+### Authentication
+
+Users must be logged in to:
+
+* Book events
+* Access booking history
+* View personal dashboard data
+
+Authentication is handled by Supabase Auth.
+
+### Event Booking
+
+Authenticated users can:
+
+* Browse events created by admins
+* Select an event
+* Complete the booking process
+* View booking confirmation
+
+Important booking rules:
+
+* Users cannot cancel an event once they have completed a booking.
+* Booking cancellations can only be initiated by an administrator.
+
+### Admin Access Control
+
+Only administrators have permission to:
+
+* Create events
+* Update existing events
+* Delete events
+* Cancel events due to unavoidable circumstances
+
+When an event is cancelled by an administrator:
+
+* Users receive refund notifications
+* Users are informed of the reason for cancellation
+* Refund handling can be triggered through your payment workflow
+* Email notifications are sent automatically
+
+Admin permissions can be enforced using Supabase Row-Level Security (RLS) policies.
+
+---
+
+## Project Structure
+
+```bash
+event-management-app/
+│
+├── public/                     # Static assets such as images and icons
+├── src/
+│   ├── components/             # Shared reusable UI components
+│   ├── routes/                 # TanStack Start routes and pages
+│   ├── supabase/                 # Global styling helpers
+│   ├── css/                    # Component-specific CSS files
+│   ├── db/                     # Database schemas, queries, and typed models
+│   ├── validations/            # Supabase browser and server clients
+│   ├── server/                 # Server-side logic and RPC functions
+│   ├── sql/                    # SQL , policies, and triggers
+│   ├── hooks/                  # Custom React hooks
+│   ├── utils/                  # Utility helper functions
+│   ├── route.tsx               # Main TanStack Router setup
+│   ├── routerTree.gen.ts       # Auto-generated TanStack route tree
+│   └── styles.css              # Global CSS entry file
+│
+├── components.json             # UI component configuration
+├── drizzle.config.ts           # Database ORM configuration
+├── package-lock.json           # Dependency lock file
+├── package.json                # Project metadata and scripts
+├── README.md                   # Documentation
+├── tsconfig.json               # TypeScript configuration
+├── vite.config.ts              # Vite configuration
+```
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/abdallahshee/event-management
+```
+
+Move into the project folder:
+
+```bash
+cd event-management-app
+```
+
+Install dependencies:
 
 ```bash
 npm install
+```
+
+Start the development server:
+
+```bash
 npm run dev
 ```
 
-# Building For Production
+---
 
-To build this application for production:
+## Supabase Environment Variables Setup
 
-```bash
-npm run build
+This project uses Supabase as the backend-as-a-service (BaaS) for authentication, PostgreSQL database operations, and file storage.
+
+### Step 1: Create a Supabase Project
+
+1. Open the Supabase dashboard.
+2. Create a new project.
+3. Wait for project provisioning to finish.
+
+### Step 2: Get API Credentials
+
+Inside your Supabase project:
+
+1. Open **Project Settings**.
+2. Navigate to **API**.
+3. Copy the following values:
+
+   * Project URL
+   * Anonymous Public Key
+
+### Step 3: Create a `.env` File
+
+Create a `.env.local` file at the root of your project.
+
+Example:
+
+```env
+# Public Client Variables
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your_public_anon_key
+
+# Optional Server Variables
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_PUBLISHABLE_KEY=your_public_anon_key
 ```
 
-## Testing
+### Step 4: Access Environment Variables
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+Example Supabase client setup:
 
-```bash
-npm run test
+```ts
+import { createClient } from '@supabase/supabase-js'
+
+export const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+)
 ```
 
-## Styling
+### Important Notes
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+* Never expose your Supabase service role key on the frontend.
+* Only use anonymous keys in browser code.
+* Add `.env.local` to `.gitignore`.
 
-### Removing Tailwind CSS
+---
 
-If you prefer not to use Tailwind CSS:
+## Notification System
 
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `npm install @tailwindcss/vite tailwindcss -D`
+The application uses the Resend API to send transactional email notifications.
 
+### Notification Types
 
+Users can receive notifications for:
 
-## Routing
+* Successful bookings
+* Payment confirmations
+* Refund processing
+* Event cancellations
+* Newly created events
 
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+### Resend Integration
 
-### Adding A Route
+Resend can be connected through server-side functions to trigger emails during important actions.
 
-To add a new route to your application just add a new file in the `./src/routes` directory.
+Example use cases:
 
-TanStack will automatically generate the content of the route file for you.
+* Send booking confirmation after successful payment
+* Notify users when an admin cancels an event
+* Inform users when a refund has been processed
+* Notify subscribed users about newly created events
 
-Now that you have two routes you can use a `Link` component to navigate between them.
+---
 
-### Adding Links
+## Database Structure
 
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+### Profile
 
-```tsx
-import { Link } from "@tanstack/react-router";
-```
+Stores authenticated users from Supabase Auth.
 
-Then anywhere in your JSX you can use it like so:
+### Events
 
-```tsx
-<Link to="/about">About</Link>
-```
+Stores all event information including:
 
-This will create a link that will navigate to the `/about` route.
+* Event title
+* Description
+* Date and time
+* Location
+* Availability
 
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
+### Bookings
 
-### Using A Layout
+Stores booking relationships between users and events.
 
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
+Each booking connects:
 
-Here is an example layout that includes a header:
+* A user
+* An event
+* Booking timestamp
 
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+---
 
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
+## Deployment
 
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+You can deploy this application using:
 
-## Server Functions
+* Vercel
+* Netlify
+* Render
 
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
+When deploying:
 
-```tsx
-import { createServerFn } from '@tanstack/react-start'
+1. Add environment variables to your hosting platform.
+2. Redeploy the application.
 
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
+---
 
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
+## Future Improvements
 
-## API Routes
+* Email notifications for bookings
+* Event reminders
+* Calendar integration
+* QR code ticket generation
+* Admin dashboard analytics
+* Payment integration
 
-You can create API routes by using the `server` property in your route definitions:
+---
 
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
+## Author
 
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
+**Your Name**
 
-## Data Fetching
+* Portfolio: your-portfolio-link
+* GitHub: [https://github.com/your-username](https://github.com/your-username)
+* LinkedIn: your-linkedin-link
 
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
+---
 
-For example:
+## License
 
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
-# event-management
+This project is open-source and available under the MIT License.

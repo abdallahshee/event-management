@@ -51,7 +51,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
      
 
       
-      <body>   <Container size='xl'>
+      <body>   <Container fluid>
         {children}
         <TanStackDevtools
           config={{
