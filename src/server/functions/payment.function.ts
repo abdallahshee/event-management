@@ -1,8 +1,8 @@
 import { db } from "#/db";
 import { payment } from "#/db/schema";
-import { CreatePaymentSchema, GetPaymentsSchema, GetUserPaymentsSchema } from "#/db/validations/payment.validation";
+import { CreatePaymentSchema, GetEventPaymentsSchema, GetPaymentsSchema, GetUserPaymentsSchema } from "#/db/validations/payment.validation";
 import { createServerFn } from "@tanstack/react-start";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 
 // CreatePaymentFn,
 // GetPaymentsFn,
@@ -37,7 +37,7 @@ export const GetPaymentsFn = createServerFn({ method: 'GET' })
             const whereClause = !data.provider ? undefined : eq(payment.provider, data.provider)
 
             const [payments, total] = await Promise.all([
-                db.query.payment.findMany({ where: whereClause, limit, offset }),
+                db.query.payment.findMany({with:{event:true}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
                 db.$count(payment, whereClause)
             ])
             return {
@@ -55,7 +55,7 @@ export const GetPaymentByReferenceFn = createServerFn({ method: 'GET' })
     .inputValidator((data: { reference: string }) => data)
     .handler(async ({ data }) => {
         try {
-            const thePayment = db.query.payment.findFirst({ where: eq(payment.referenceNumber, data.reference) })
+            const thePayment = db.query.payment.findFirst({with:{event:true}, where: eq(payment.referenceNumber, data.reference) })
             return thePayment
         } catch (err) {
             console.log('Error from GetPaymentByReferenceFn ', err)
@@ -78,7 +78,7 @@ export const GetUserPaymentsFn = createServerFn({ method: 'GET' })
                 : and(eq(payment.userId, data.userId), eq(payment.provider, data.provider))
 
             const [userPayments, total] = await Promise.all([
-                db.query.payment.findMany({ where: whereClause, limit, offset }),
+                db.query.payment.findMany({with:{event:true}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
                 db.$count(payment, whereClause)
             ])
             return {
@@ -87,6 +87,33 @@ export const GetUserPaymentsFn = createServerFn({ method: 'GET' })
             }
         } catch (err) {
             console.log('Error from GetUserPaymentsFn ', err)
+            throw err
+        }
+    })
+
+export const GetEventPaymentsFn = createServerFn({ method: "GET" })
+    .middleware([])
+    .inputValidator(GetEventPaymentsSchema)
+    .handler(async ({ data }) => {
+        try {
+            const page = data.paginator.page ?? 1
+            const limit = data.paginator.limit ?? 10
+            const offset = (page - 1) * limit
+
+            const whereClause = !data.provider
+                ? eq(payment.eventId, data.eventId)
+                : and(eq(payment.eventId, data.eventId), eq(payment.provider, data.provider))
+
+            const [payments, total] = await Promise.all([
+                db.query.payment.findMany({with:{event:true}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
+                db.$count(payment, whereClause)
+            ])
+            return {
+                data: payments,
+                meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
+            }
+        } catch (err) {
+            console.log('Error from GetEventPaymentsFn ', err)
             throw err
         }
     })

@@ -3,7 +3,7 @@ import { event, location } from "#/db/schema";
 import { PaginatorSchema } from "#/db/utils";
 import { CreateEventSchema, UpdateEventSchema } from "#/db/validations/event.validation";
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 
 // CreateEventFn
 // GetEventsFn
@@ -49,6 +49,7 @@ export const GetEventsFn = createServerFn({ method: 'GET' })
                     with: { location: true },
                     limit,
                     offset,
+                    orderBy: asc(event.startsAt)
                 }),
                 db.$count(event)
             ])
@@ -67,7 +68,7 @@ export const GetEventByIdFn = createServerFn({ method: 'GET' })
     .inputValidator((data: { eventId: string }) => data)
     .handler(async ({ data }) => {
         try {
-            const theEvent = await db.query.event.findFirst({ where: eq(event.id, data.eventId) })
+            const theEvent = await db.query.event.findFirst({ with: { location: true }, where: eq(event.id, data.eventId) })
             return theEvent
         } catch (err) {
             console.log('Error from GetEventByIdFn ', err)
@@ -80,8 +81,10 @@ export const UpdateEventFn = createServerFn({ method: 'POST' })
     .inputValidator(UpdateEventSchema)
     .handler(async ({ data }) => {
         try {
-            const [theEvent] = await db.update(event).set({ ...data }).where(eq(event.id, data.eventId)).returning()
-            return theEvent
+            const [theEvent] = await db.update(event).set({ ...data })
+                .where(eq(event.id, data.eventId)).returning({ eventId: event.id })
+            const tEvent = await db.query.event.findFirst({ with: { location: true }, where: eq(event.id, theEvent.eventId) })
+            return tEvent
         } catch (err) {
             console.log('Error from UpdateEventFn ', err)
             throw err

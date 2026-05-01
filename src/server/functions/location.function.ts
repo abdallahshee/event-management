@@ -1,9 +1,9 @@
 import { db } from "#/db";
-import { location } from "#/db/schema";
+import { event, location } from "#/db/schema";
 import { PaginatorSchema } from "#/db/utils";
 import { CreateLocationSchema, UpdateLocationSchema } from "#/db/validations/location.validation";
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
+import { asc, count, eq } from "drizzle-orm";
 
 // CreateLocationFn,
 // GetLocationsFn,
@@ -35,10 +35,28 @@ export const GetLocationsFn = createServerFn({ method: "GET" })
             const limit = data.limit ?? 10
             const offset = (page - 1) * limit
 
+            const eventCountSubquery = db
+                .select({ 
+                    locationId: event.locationId, 
+                    count: count(event.id).as('count') 
+                })
+                .from(event)
+                .groupBy(event.locationId)
+                .as('eventCount')
+
             const [theLocations, total] = await Promise.all([
-                db.query.location.findMany({ limit, offset }),
+                db.select({
+                    name: location.name,
+                    eventCount: eventCountSubquery.count,
+                })
+                .from(location)
+                .leftJoin(eventCountSubquery, eq(location.id, eventCountSubquery.locationId))
+                .orderBy(asc(location.name))
+                .limit(limit)
+                .offset(offset),
                 db.$count(location)
             ])
+
             return {
                 data: theLocations,
                 meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
@@ -55,7 +73,7 @@ export const GetLocationByIdFn = createServerFn({ method: 'GET' })
     .inputValidator((data: { locationId: string }) => data)
     .handler(async ({ data }) => {
         try {
-            const thelocation = await db.query.location.findFirst({ where: eq(location.id, data.locationId) })
+            const thelocation = await db.query.location.findFirst({with:{events:true}, where: eq(location.id, data.locationId) })
             return thelocation
         } catch (err) {
             console.log("Error from GetLocationByIdFn", err)
@@ -70,8 +88,9 @@ export const UpdateLocationFn = createServerFn({ method: "POST" })
     .handler(async ({ data }) => {
         try {
             const [thelocation] = await db.update(location).set({ ...data })
-                .where(eq(location.id, data.locationId)).returning()
-            return thelocation
+                .where(eq(location.id, data.locationId)).returning({locationId:location.id})
+            const thelocat=await db.query.location.findFirst({with:{events:true},where:eq(location.id,thelocation.locationId)})
+                    return  thelocat      
         } catch (err) {
             console.log("Error from UpdateLocationFn", err)
             throw err

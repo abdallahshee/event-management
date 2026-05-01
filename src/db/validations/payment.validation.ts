@@ -47,6 +47,10 @@ export type GetPaymentsRequest = z.infer<typeof GetPaymentsSchema>
 export const GetUserPaymentsSchema = GetPaymentsSchema.extend({
   userId:z.string().min(1)
 })
-  
-
 export type GetUserPaymentsRequest = z.infer<typeof GetUserPaymentsSchema>
+
+
+export const GetEventPaymentsSchema=GetPaymentsSchema.extend({
+  eventId:z.string().min(1)
+})
+export type GetEventPaymentsRequest=z.infer<typeof GetEventPaymentsSchema>

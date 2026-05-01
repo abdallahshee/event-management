@@ -2,7 +2,7 @@ import { db } from "#/db";
 import { review } from "#/db/schema";
 import { CreateReviewSchema, GetEventReviewsSchema } from "#/db/validations/review.validation";
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 
 // CreateReviewFn,
 // GetReviewsByEventIdFn
@@ -40,6 +40,7 @@ export const GetReviewsByEventIdFn = createServerFn({ method: 'GET' })
                     where: eq(review.eventId, data.eventId),
                     limit,
                     offset,
+                    orderBy:asc(review.createdAt)
                 }),
                 db.$count(review, eq(review.eventId, data.eventId))
             ])
