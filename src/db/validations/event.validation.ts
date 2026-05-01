@@ -11,8 +11,8 @@ export const CreateEventSchema = createInsertSchema(event, {
   description: z.string().max(1000, "Description too long").nonempty(),
   price: z.number().min(0, "Price cannot be negative").default(0),
   capacity: z.number().int().min(1, "Capacity must be at least 1"),
-  startsAt: z.string().min(1,"Invalid start date" ),
-  endsAt: z.string().min(1,"Invalid end date" ),
+  startsAt: z.string().min(1, "Invalid start date"),
+  endsAt: z.string().min(1, "Invalid end date"),
   coverImage: z.url("Invalid image URL").optional(),
   locationId: z.string().optional(),
   category: z.enum(SupportedEventCategories),
@@ -38,11 +38,13 @@ export const CreateEventSchema = createInsertSchema(event, {
     message: "Start date must be in the future",
     path: ["startsAt"],
   })
-  export type CreateEventRequest = z.infer<typeof CreateEventSchema>
+export type CreateEventRequest = z.infer<typeof CreateEventSchema>
 
 
-  export const UpdateEventSchema=CreateEventSchema
-  export type UpdateEventRequest=z.infer<typeof CreateEventSchema>
+export const UpdateEventSchema = CreateEventSchema.extend({
+  eventId: z.string().min(1)
+})
+export type UpdateEventRequest = z.infer<typeof UpdateEventSchema>
 
 
-  export type Event = InferSelectModel<typeof event>
+export type Event = InferSelectModel<typeof event>

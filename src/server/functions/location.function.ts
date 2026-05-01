@@ -1,7 +1,7 @@
 import { db } from "#/db";
 import { location } from "#/db/schema";
 import { PaginatorSchema } from "#/db/utils";
-import { CreateLocationSchema, UpdateLocationSchema} from "#/db/validations/location.validation";
+import { CreateLocationSchema, UpdateLocationSchema } from "#/db/validations/location.validation";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 

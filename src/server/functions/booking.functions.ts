@@ -10,7 +10,7 @@ import { eq } from "drizzle-orm";
 // GetUserBookingsFn,
 
 // Creating a User Boking
-export const CreateBookingFn= createServerFn({ method: 'POST' })
+export const CreateBookingFn = createServerFn({ method: 'POST' })
     .middleware([])
     .inputValidator(CreateBookingSchema)
     .handler(async ({ data }) => {

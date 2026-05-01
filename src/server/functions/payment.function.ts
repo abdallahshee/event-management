@@ -33,8 +33,8 @@ export const GetPaymentsFn = createServerFn({ method: 'GET' })
             let payments;
             if (!data.provider) {
                 payments = await db.query.payment.findMany({
-                    with:{
-                        
+                    with: {
+
                     }
                 })
             } else {

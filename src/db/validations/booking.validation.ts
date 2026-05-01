@@ -14,22 +14,22 @@ import { PaginatorSchema } from "../utils";
 
 export const CreateBookingSchema = createInsertSchema(booking, {
   eventId: z.string().nonempty(),
-  userId:z.string().nonempty(),
-  amount:z.number().min(1)
+  userId: z.string().nonempty(),
+  amount: z.number().min(1)
 })
-.pick({
-  eventId: true,
-  userId:true,
-  amount:true
-})
+  .pick({
+    eventId: true,
+    userId: true,
+    amount: true
+  })
 export type CreateBookingRequest = z.infer<typeof CreateBookingSchema>
 
 
-export const GetUserBookingsSchema=CreateBookingSchema.omit({amount:true,eventId:true})
-.extend({
-  paginator:PaginatorSchema
-}).pick({paginator:true,userId:true})
-export type GetUserBookingsRequest=z.infer<typeof GetUserBookingsSchema>
+export const GetUserBookingsSchema = CreateBookingSchema.omit({ amount: true, eventId: true })
+  .extend({
+    paginator: PaginatorSchema
+  })
+export type GetUserBookingsRequest = z.infer<typeof GetUserBookingsSchema>
 
 
 
