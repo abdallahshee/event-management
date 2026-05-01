@@ -1,6 +1,7 @@
 import { db } from "#/db";
 import { event, location } from "#/db/schema";
 import { CreateEventSchema } from "#/db/validations/event.validation";
+import { PaginatorSchema } from "#/db/validations/utils.validation";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 
@@ -10,12 +11,12 @@ export const CreateEventFn = createServerFn({ method: 'POST' })
     .inputValidator(CreateEventSchema)
     .handler(async ({ data }) => {
         try {
-            let theId = ""
-            if (typeof data.lacation !== null) {
+            let theId;
+            if (!data.locationId) {
                 // create the locatio if the location is not set, 
                 // ie the admin selected the existing location
                 const [thelocationId] = await db.insert(location)
-                    .values({ ...data.lacation }).returning({ locationID: location.id })
+                    .values({ ...data.location }).returning({ locationID: location.id })
                 theId = thelocationId.locationID
             } else {
                 theId = data.locationId
@@ -28,10 +29,10 @@ export const CreateEventFn = createServerFn({ method: 'POST' })
         }
     })
 
-//Get Events
+// Get Events
 export const GetEventsFn = createServerFn({ method: 'GET' })
     .middleware([])
-    .inputValidator((data: { page?: number, limit?: number }) => data)
+    .inputValidator(PaginatorSchema)
     .handler(async ({ data }) => {
         try {
             const theEvents = await db.query.event.findMany({
@@ -45,7 +46,8 @@ export const GetEventsFn = createServerFn({ method: 'GET' })
             throw err
         }
     })
-
+    
+// Getting one Event By ID
 export const GetEventByIdFn = createServerFn({ method: 'GET' })
     .inputValidator((data: { eventId: string }) => data)
     .handler(async ({ data }) => {

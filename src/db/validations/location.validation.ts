@@ -20,12 +20,12 @@ export const CreateLocationSchema=createSelectSchema(location,{
     name:z.string().min(50,"Please Provide a name fo this Location"),
     coordinates:coordinateSchema
 }).pick({name:true,coordinates:true})
+export type CreateLocationRequest=z.infer<typeof CreateLocationSchema>
+
 
 export const UpdateLocationSchema=CreateLocationSchema.extend({
     locationId:z.string().min(1)
 })
-
-export type CreateLocationRequest=z.infer<typeof CreateLocationSchema>
 export type UpdateLocationRequest=z.infer<typeof UpdateLocationSchema>
 
 

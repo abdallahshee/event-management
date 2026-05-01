@@ -1,6 +1,6 @@
 import { db } from "#/db";
 import { payment } from "#/db/schema";
-import { CreatePaymentSchema, GetPaymentsSchema } from "#/db/validations/payment.validation";
+import { CreatePaymentSchema, GetPaymentsSchema, GetUserPaymentsSchema } from "#/db/validations/payment.validation";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
 
@@ -26,7 +26,11 @@ export const GetPaymentsFn = createServerFn({ method: 'GET' })
         try {
             let payments;
             if (!data.provider) {
-                payments = await db.query.payment.findMany({})
+                payments = await db.query.payment.findMany({
+                    with:{
+                        
+                    }
+                })
             } else {
                 payments = await db.query.payment.findMany({ where: eq(payment.provider, data.provider) })
             }
@@ -37,7 +41,7 @@ export const GetPaymentsFn = createServerFn({ method: 'GET' })
         }
     })
 
-//Get Payment By Reference Number
+// Get Payment By Reference Number
 export const GetPaymentByReferenceFn = createServerFn({ method: 'GET' })
     .middleware([])
     .inputValidator((data: { reference: string }) => data)
@@ -51,10 +55,10 @@ export const GetPaymentByReferenceFn = createServerFn({ method: 'GET' })
         }
     })
 
-//Get payments for the user
+// Get payments for A user
 export const GetUserPaymentsFn = createServerFn({ method: 'GET' })
     .middleware([])
-    .inputValidator((data: { userId: string, provider?: string }) => data)
+    .inputValidator(GetUserPaymentsSchema)
     .handler(async ({ data }) => {
         try {
             let userPayments;

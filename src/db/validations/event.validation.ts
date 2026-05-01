@@ -13,8 +13,8 @@ export const CreateEventSchema = createInsertSchema(event, {
   slotsRemaining: z.number().int().min(0, "Slots cannot be negative"),
   startsAt: z.string().min(1,"Invalid start date" ),
   endsAt: z.string().min(1,"Invalid end date" ),
-  coverImage: z.string().url("Invalid image URL").optional(),
-  locationId: z.string(),
+  coverImage: z.url("Invalid image URL").optional(),
+  locationId: z.string().optional(),
   category: z.enum(['music', 'tech', 'food', 'sports', 'arts', 'business'],"thereyy"),
   isFeatured: z.boolean().default(false),
 })
@@ -30,7 +30,7 @@ export const CreateEventSchema = createInsertSchema(event, {
     startsAt: true,
     endsAt: true,
     locationId: true
-  }).extend({ lacation: CreateLocationSchema })
+  }).extend({ location: CreateLocationSchema })
   .refine(data => data.endsAt > data.startsAt, {
     message: "End date must be after start date",
     path: ["endsAt"],
@@ -43,12 +43,11 @@ export const CreateEventSchema = createInsertSchema(event, {
     message: "Slots remaining cannot exceed capacity",
     path: ["slotsRemaining"],
   })
+  export type CreateEventRequest = z.infer<typeof CreateEventSchema>
 
-export const UpdateEventSchema=CreateEventSchema.extend({
-  eventId:z.string().min(1)
-})
 
-export type CreateEventRequest = z.infer<typeof CreateEventSchema>
-export type UpdateEventSchema=z.infer<typeof UpdateEventSchema>
+  export const UpdateEventSchema=CreateEventSchema
+  export type UpdateEventRequest=z.infer<typeof CreateEventSchema>
 
-export type Event = InferSelectModel<typeof event>
+
+  export type Event = InferSelectModel<typeof event>

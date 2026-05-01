@@ -1,11 +1,11 @@
 import { db } from "#/db";
 import { booking } from "#/db/schema";
-import { CreateBookingSchema } from "#/db/validations/booking.validation";
+import { CreateBookingSchema, GetUserBookingsSchema } from "#/db/validations/booking.validation";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 
-//Create a Booking
-export const CreateBookingFn = createServerFn({ method: 'POST' })
+// Creating a User Boking
+export const CreateBookingFn= createServerFn({ method: 'POST' })
     .middleware([])
     .inputValidator(CreateBookingSchema)
     .handler(async ({ data }) => {
@@ -18,10 +18,10 @@ export const CreateBookingFn = createServerFn({ method: 'POST' })
         }
     })
 
-//Get Bookings
+// Get Bookings
 export const GetBookingsFn = createServerFn({ method: 'POST' })
     .middleware([])
-    .inputValidator((data: { page?: number, limit?: number }) => data)
+    .inputValidator(GetUserBookingsSchema)
     .handler(async () => {
         try {
             const theBookings = await db.query.booking.findMany()
@@ -32,6 +32,7 @@ export const GetBookingsFn = createServerFn({ method: 'POST' })
             throw err
         }
     })
+
 // Get the Booking By Id
 export const GetBookingByIdFn = createServerFn({ method: 'POST' })
     .middleware([])
@@ -45,10 +46,11 @@ export const GetBookingByIdFn = createServerFn({ method: 'POST' })
             throw err
         }
     })
-
+    
+// Getting the Bookings for a User
 export const GetUserBookingsFn = createServerFn({ method: 'GET' })
     .middleware([])
-    .inputValidator((data: { userId: string, page?: number, limit?: number }) => data)
+    .inputValidator(GetUserBookingsSchema)
     .handler(async ({ data }) => {
         try {
             const theBookings = await db.query.booking.findMany({ where: eq(booking.userId, data.userId) })

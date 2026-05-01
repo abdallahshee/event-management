@@ -27,7 +27,12 @@ export const GetReviewsByEventIdFn = createServerFn({ method: 'GET' })
     .inputValidator(EventReviewsSchema)
     .handler(async ({ data }) => {
         try {
-            const theReviews = await db.query.review.findMany({ where: eq(review.eventId, data.eventId) })
+            const theReviews = await db.query.review.findMany(
+            {with:{
+                user:true,
+                event:true
+                
+            }, where: eq(review.eventId, data.eventId) })
             return theReviews
         } catch (err) {
             console.log('Error from GetReviewsByEventIdF ', err)

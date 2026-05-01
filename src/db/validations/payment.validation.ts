@@ -13,32 +13,42 @@
 import { createInsertSchema } from "drizzle-zod";
 import { payment } from "../schema";
 import z from "zod"
+import { PaginatorSchema } from "./utils.validation";
+import { SupportedCurrencies, SupportedProviders } from "../schema/utils.schema";
 
-const supportedCurrencies = ['USD', 'KES', 'EUR', 'GBP'] as const
-const supportedProviders = ['stripe', 'mpesa', 'paypal', 'flutterwave'] as const
-
-export const GetPaymentsSchema=z.object({
-  page:z.number().nullable(),
-  limit:z.number().nullable(),
-  provider:z.string().nullable()
-})
 
 export const CreatePaymentSchema = createInsertSchema(payment, {
-  bookingId: z.string(),
-  userId:z.string(),
+  bookingId: z.string().nonempty(),
+  eventId:z.string().nonempty(),
+  userId:z.string().nonempty(),
   amount: z.number().min(1, "Amount must be greater than 0"),
-  currency: z.enum(supportedCurrencies, { message: "Unsupported currency" }).default('USD'),
-  provider: z.enum(supportedProviders, { message: "Unsupported payment provider" }),
+  currency: z.enum(SupportedCurrencies, { message: "Unsupported currency" }).default('USD'),
+  provider: z.enum(SupportedProviders, { message: "Unsupported payment provider" }),
   referenceNumber: z.string().min(1, "Transaction ID is required"),
 })
 .pick({
   bookingId: true,
   amount: true,
+  eventId:true,
   currency: true,
   provider: true,
   referenceNumber: true,
   userId:true
   
 })
-
 export type CreatePaymentRequest = z.infer<typeof CreatePaymentSchema>
+
+
+export const GetPaymentsSchema=z.object({
+  paginaor:PaginatorSchema,
+  provider:z.enum(SupportedProviders,"Invalid Payment Provider")
+})
+export type GetPaymentsRequest=z.infer<typeof GetPaymentsSchema>
+
+
+export const GetUserPaymentsSchema=CreatePaymentSchema.pick({
+  userId:true
+}).extend({
+  provider:z.enum(SupportedProviders,"Invalid Payment Provider")
+})
+export type GetUserPaymentsRequest=z.infer<typeof GetUserPaymentsSchema>

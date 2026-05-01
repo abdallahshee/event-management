@@ -1,6 +1,6 @@
 import { db } from "#/db";
 import { notification } from "#/db/schema";
-import { CreateNotificationSchema, NoteByIdSchema, NotesByUserIdSchema, NotesSchema, NotificationTypes } from "#/db/validations/notification.validation";
+import { CreateNotificationSchema, NoteByIdSchema, NotesByUserIdSchema, NotesSchema } from "#/db/validations/notification.validation";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
 

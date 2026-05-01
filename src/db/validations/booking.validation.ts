@@ -10,10 +10,11 @@
 import { createInsertSchema } from "drizzle-zod";
 import { booking } from "../schema";
 import z from "zod"
+import { PaginatorSchema } from "./utils.validation";
 
 export const CreateBookingSchema = createInsertSchema(booking, {
-  eventId: z.string().min(1),
-  userId:z.string().min(1),
+  eventId: z.string().nonempty(),
+  userId:z.string().nonempty(),
   amount:z.number().min(1)
 })
 .pick({
@@ -21,5 +22,13 @@ export const CreateBookingSchema = createInsertSchema(booking, {
   userId:true,
   amount:true
 })
+export type CreateBookingRequest = z.infer<typeof CreateBookingSchema>
 
-export type UpdateBookingRequest = z.infer<typeof CreateBookingSchema>
+
+export const GetUserBookingsSchema=CreateBookingSchema.omit({amount:true,eventId:true})
+.extend({
+  paginator:PaginatorSchema
+}).pick({paginator:true,userId:true})
+export type GetUserBookingsRequest=z.infer<typeof GetUserBookingsSchema>
+
+

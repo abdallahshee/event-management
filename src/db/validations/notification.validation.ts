@@ -22,21 +22,14 @@
 import { createInsertSchema } from "drizzle-zod";
 import { notification } from "../schema";
 import z from "zod"
-
-export const NotificationTypes = [
-  'booking_confirmed',
-  'booking_cancelled',
-  'event_cancelled',
-  'event_reminder',
-  'refund_processed',
-  'review_received',
-] as const
+import { PaginatorSchema } from "./utils.validation";
+import { SupportedNotifications } from "../schema/utils.schema";
 
 
 export const CreateNotificationSchema = createInsertSchema(notification, {
   title: z.string().min(1, "Title is required").max(100, "Title too long"),
   body: z.string().min(1, "Body is required").max(500, "Body too long"),
-  type: z.enum(NotificationTypes, { message: "Invalid notification type" }),
+  type: z.enum(SupportedNotifications, { message: "Invalid notification type" }),
 })
 .pick({
   title: true,
@@ -44,22 +37,26 @@ export const CreateNotificationSchema = createInsertSchema(notification, {
   type: true,
   userId:true
 })
+export type CreateNotificationRequest = z.infer<typeof CreateNotificationSchema>
+
+
 export const NoteByIdSchema=z.object({
-    type:z.enum([...NotificationTypes]),
+    type:z.enum([...SupportedNotifications]),
     notificationId:z.string().min(1)
 })
+export type NotesByIdRequest=z.infer<typeof NoteByIdSchema>
+
 
 export const NotesByUserIdSchema=z.object({
-    type:z.enum([...NotificationTypes]),
+    type:z.enum([...SupportedNotifications]),
     userId:z.string().min(1),
-    page:z.number(),
-    limit:z.number()
+    paginator:PaginatorSchema
 })
+export type NotesByUserIdRequest=z.infer<typeof NotesByUserIdSchema>
+
 
 export const NotesSchema=z.object({
-    type:z.enum([...NotificationTypes]),
-    page:z.number(),
-    limit:z.number()
+    type:z.enum([...SupportedNotifications]),
+    paginator:PaginatorSchema
 })
-
-export type CreateNotificationRequest = z.infer<typeof CreateNotificationSchema>
+export type NotesRequest=z.infer<typeof NotesSchema>

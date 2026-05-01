@@ -7,6 +7,7 @@ import { nanoid } from "nanoid";
 import { review } from "./review.schema";
 import { location } from "./location.schema";
 import { booking } from "./booking.schema";
+import { payment } from "./payment.schema";
 
 
 export const event = pgTable('event', {
@@ -33,6 +34,7 @@ export const eventRelations = relations(event, ({one, many }) => ({
     fields:[event.locationId],
     references:[location.id]
   }),
+  payments:many(payment),
   reviews: many(review),
   bookings: many(booking), // events are booked through bookingItems
 }))

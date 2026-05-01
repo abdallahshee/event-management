@@ -13,6 +13,7 @@
 import { createInsertSchema } from "drizzle-zod";
 import { review } from "../schema";
 import z from "zod"
+import { PaginatorSchema } from "./utils.validation";
 
 export const CreateReviewSchema = createInsertSchema(review, {
   eventId:z.string().nonempty(),
@@ -24,11 +25,11 @@ export const CreateReviewSchema = createInsertSchema(review, {
   comment: true,
   eventId:true,
 })
+export type CreateReviewRequest = z.infer<typeof CreateReviewSchema>
+
 
 export const EventReviewsSchema=z.object({
   eventId:z.string().nonempty(),
-  page:z.string().nullable(),
-  limit:z.string().nullable()
+  paginator:PaginatorSchema
 })
-
-export type ReviewRequest = z.infer<typeof CreateReviewSchema>
+export type EventReviewsRequest=z.infer<typeof EventReviewsSchema>

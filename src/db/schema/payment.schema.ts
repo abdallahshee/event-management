@@ -2,21 +2,28 @@ import { pgTable, numeric, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { booking } from "./booking.schema";
 import { relations } from "drizzle-orm";
 import { profile } from "./profile.schema";
+import { event } from "./event.schema";
+import { SupportedCurrencies, SupportedProviders } from "./utils.schema";
 // import { nanoid } from "nanoid";
 
 export const payment = pgTable('payment', {
   // id: text('id').primaryKey().$default(() => nanoid(16)),
   userId:uuid("user_id").notNull().references(()=>profile.id),
   bookingId: text('booking_id').notNull().references(() => booking.id),
+  eventId:text('event_id').notNull().references(()=>event.id),
   amount: numeric('amount', { precision: 10, scale: 2 ,mode:'number'}).notNull(),
-  currency: text('currency').notNull().default('USD'),
-  provider: text('provider').notNull().primaryKey().notNull(),           // 'stripe' | 'mpesa' | etc.
-  referenceNumber: text('reference_number'),             // provider's transaction ID
+  currency: text('currency',{enum:[...SupportedCurrencies]}).notNull().default('USD'),
+  provider: text('provider',{enum:[...SupportedProviders]}).notNull(),           // 'stripe' | 'mpesa' | etc.
+  referenceNumber: text('reference_number').primaryKey().notNull(),             // provider's transaction ID
   status: text('status', { enum: ['pending', 'paid', 'refunded'] }).default('pending').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().$onUpdate(() => new Date()),
 })
 
 export const paymentRelations = relations(payment, ({ one }) => ({
+  event:one(event,{
+    fields:[payment.eventId],
+    references:[event.id]
+  }),
   booking: one(booking, { fields: [payment.bookingId], references: [booking.id] }),
 }))

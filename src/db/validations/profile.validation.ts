@@ -12,18 +12,13 @@ import { createInsertSchema } from "drizzle-zod";
 import { profile } from "../schema";
 import z from "zod";
 
-export const ProfileSignUpSchema = createInsertSchema(profile, {
+export const SignUpSchema = createInsertSchema(profile, {
   firstName: z.string().min(2, "First name must be at least 2 characters").max(50, "First name too long"),
   lastName: z.string().min(2, "Last name must be at least 2 characters").max(50, "Last name too long"),
-  avatarUrl: z.string().url("Invalid avatar URL").optional(),
 })
 .extend({
-  email: z.string().email("Invalid email address"),
-  password: z.string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(/[^a-zA-Z0-9]/, "Password must contain at least one special character"),
+  email: z.email().nonempty(),
+  password: z.string(),
   confirmPassword: z.string().min(1, "Please confirm your password"),
 })
 .pick({
@@ -37,28 +32,24 @@ export const ProfileSignUpSchema = createInsertSchema(profile, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
 })
+export type SignUpRequest = z.infer<typeof SignUpSchema>
+
 
 export const SignInSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.email().nonempty(),
   password: z.string().min(1, "Password is required"),
 })
+export type SignInRequest = z.infer<typeof SignInSchema>
 
-export const EmailSchema = z.object({
-  email: z.string().email("Invalid email address"),
-})
 
 export const UpdateProfileSchema = createInsertSchema(profile, {
   firstName: z.string().min(2, "First name must be at least 2 characters").max(50).optional(),
   lastName: z.string().min(2, "Last name must be at least 2 characters").max(50).optional(),
-  avatarUrl: z.string().url("Invalid avatar URL").optional(),
+  avatarUrl: z.url().optional(),
 })
 .pick({
   firstName: true,
   lastName: true,
   avatarUrl: true,
 })
-
-export type SignUpRequest = z.infer<typeof ProfileSignUpSchema>
-export type SignInRequest = z.infer<typeof SignInSchema>
-export type EmailRequest = z.infer<typeof EmailSchema>
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileSchema>
