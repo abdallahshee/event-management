@@ -13,9 +13,7 @@
 import { createInsertSchema } from "drizzle-zod";
 import { payment } from "../schema";
 import z from "zod"
-import { PaginatorSchema } from "./utils.validation";
-import { SupportedCurrencies, SupportedProviders } from "../schema/utils.schema";
-
+import { PaginatorSchema, SupportedCurrencies, SupportedProviders } from "../utils";
 
 export const CreatePaymentSchema = createInsertSchema(payment, {
   bookingId: z.string().nonempty(),
@@ -41,7 +39,7 @@ export type CreatePaymentRequest = z.infer<typeof CreatePaymentSchema>
 
 export const GetPaymentsSchema=z.object({
   paginaor:PaginatorSchema,
-  provider:z.enum(SupportedProviders,"Invalid Payment Provider")
+  provider:z.enum([...SupportedProviders],"Invalid Payment Provider")
 })
 export type GetPaymentsRequest=z.infer<typeof GetPaymentsSchema>
 
@@ -49,6 +47,6 @@ export type GetPaymentsRequest=z.infer<typeof GetPaymentsSchema>
 export const GetUserPaymentsSchema=CreatePaymentSchema.pick({
   userId:true
 }).extend({
-  provider:z.enum(SupportedProviders,"Invalid Payment Provider")
+  provider:z.enum([...SupportedProviders],"Invalid Payment Provider").optional()
 })
 export type GetUserPaymentsRequest=z.infer<typeof GetUserPaymentsSchema>

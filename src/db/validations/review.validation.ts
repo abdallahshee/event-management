@@ -13,12 +13,12 @@
 import { createInsertSchema } from "drizzle-zod";
 import { review } from "../schema";
 import z from "zod"
-import { PaginatorSchema } from "./utils.validation";
+import { PaginatorSchema } from "../utils";
 
 export const CreateReviewSchema = createInsertSchema(review, {
   eventId:z.string().nonempty(),
   rating: z.coerce.number().int().min(1, "Rating must be at least 1").max(5, "Rating cannot exceed 5"),
-  comment: z.string().min(10, "Comment must be at least 10 characters").max(1000, "Comment too long").optional(),
+  comment: z.string().min(10, "Comment must be at least 10 characters").max(1000, "Comment too long"),
 })
 .pick({
   rating: true,
@@ -28,8 +28,8 @@ export const CreateReviewSchema = createInsertSchema(review, {
 export type CreateReviewRequest = z.infer<typeof CreateReviewSchema>
 
 
-export const EventReviewsSchema=z.object({
+export const GetEventReviewsSchema=z.object({
   eventId:z.string().nonempty(),
   paginator:PaginatorSchema
 })
-export type EventReviewsRequest=z.infer<typeof EventReviewsSchema>
+export type GetEventReviewsRequest=z.infer<typeof GetEventReviewsSchema>

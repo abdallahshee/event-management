@@ -3,7 +3,7 @@ import { booking } from "./booking.schema";
 import { relations } from "drizzle-orm";
 import { profile } from "./profile.schema";
 import { event } from "./event.schema";
-import { SupportedCurrencies, SupportedProviders } from "./utils.schema";
+import { SupportedCurrencies, SupportedPaymentStatus, SupportedProviders } from "../utils";
 // import { nanoid } from "nanoid";
 
 export const payment = pgTable('payment', {
@@ -12,10 +12,10 @@ export const payment = pgTable('payment', {
   bookingId: text('booking_id').notNull().references(() => booking.id),
   eventId:text('event_id').notNull().references(()=>event.id),
   amount: numeric('amount', { precision: 10, scale: 2 ,mode:'number'}).notNull(),
-  currency: text('currency',{enum:[...SupportedCurrencies]}).notNull().default('USD'),
-  provider: text('provider',{enum:[...SupportedProviders]}).notNull(),           // 'stripe' | 'mpesa' | etc.
+  currency: text('currency',{ enum:SupportedCurrencies }).notNull().default('USD'),
+  provider: text('provider',{ enum:SupportedProviders }).notNull(),           // 'stripe' | 'mpesa' | etc.
   referenceNumber: text('reference_number').primaryKey().notNull(),             // provider's transaction ID
-  status: text('status', { enum: ['pending', 'paid', 'refunded'] }).default('pending').notNull(),
+  status: text('status', { enum: SupportedPaymentStatus }).default('pending').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().$onUpdate(() => new Date()),
 })

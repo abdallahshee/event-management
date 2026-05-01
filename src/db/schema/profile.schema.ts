@@ -4,6 +4,7 @@ import { booking } from './booking.schema'
 import { review } from './review.schema'
 import { notification } from './notification.schema'
 import { payment } from './payment.schema'
+import { SupportedUserRoles } from '../utils'
 
 const authSchema = pgSchema('auth')
 const authUsers = authSchema.table('users', {
@@ -15,7 +16,7 @@ export const profile = pgTable('profile', {
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   avatarUrl: text('avatar_url'),
-  role: text("role", { enum: ['admin', 'user'] }).default('user').notNull(),
+  role: text("role", { enum:SupportedUserRoles }).default('user').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().$onUpdate(() => new Date()),
 })

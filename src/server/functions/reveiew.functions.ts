@@ -1,8 +1,11 @@
 import { db } from "#/db";
 import { review } from "#/db/schema";
-import { CreateReviewSchema, EventReviewsSchema } from "#/db/validations/review.validation";
+import { CreateReviewSchema, GetEventReviewsSchema } from "#/db/validations/review.validation";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+
+// CreateReviewFn,
+// GetReviewsByEventIdFn
 
 
 // Creating Review
@@ -24,7 +27,7 @@ export const CreateReviewFn = createServerFn({ method: 'POST' })
 // Getting Event Reviews
 export const GetReviewsByEventIdFn = createServerFn({ method: 'GET' })
     .middleware([])
-    .inputValidator(EventReviewsSchema)
+    .inputValidator(GetEventReviewsSchema)
     .handler(async ({ data }) => {
         try {
             const theReviews = await db.query.review.findMany(

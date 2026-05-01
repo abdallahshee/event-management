@@ -1,8 +1,14 @@
 import { db } from "#/db";
 import { notification } from "#/db/schema";
-import { CreateNotificationSchema, NoteByIdSchema, NotesByUserIdSchema, NotesSchema } from "#/db/validations/notification.validation";
+import { CreateNotificationSchema, GetNotificationByIdSchema, GetUserNotificationsSchema, GetNotificationsSchema } from "#/db/validations/notification.validation";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
+
+// CreateNotificationFn,
+// GetNotificationsFn,
+// GetNotificationByIdFn
+// GetUserNotificationsFn
+
 
 // Creating a Notification
 export const CreateNotificationFn = createServerFn({ method: 'POST' })
@@ -21,7 +27,7 @@ export const CreateNotificationFn = createServerFn({ method: 'POST' })
 // Getting many Notifications
 export const GetNotificationsFn = createServerFn({ method: 'GET' })
     .middleware([])
-    .inputValidator(NotesSchema)
+    .inputValidator(GetNotificationsSchema)
     .handler(async ({ data }) => {
         try {
             let theNots;
@@ -40,7 +46,7 @@ export const GetNotificationsFn = createServerFn({ method: 'GET' })
 // Getting a Notification By id
 export const GetNotificationByIdFn = createServerFn({ method: 'GET' })
     .middleware([])
-    .inputValidator(NoteByIdSchema)
+    .inputValidator(GetNotificationByIdSchema)
     .handler(async ({ data }) => {
         try {
             let TheNot;
@@ -60,7 +66,7 @@ export const GetNotificationByIdFn = createServerFn({ method: 'GET' })
 // Getting User Notifications
 export const GetUserNotificationsFn = createServerFn({ method: 'GET' })
     .middleware([])
-    .inputValidator(NotesByUserIdSchema)
+    .inputValidator(GetUserNotificationsSchema)
     .handler(async ({ data }) => {
         try {
             let UserNots;

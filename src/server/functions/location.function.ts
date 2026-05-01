@@ -1,9 +1,15 @@
 import { db } from "#/db";
 import { location } from "#/db/schema";
+import { PaginatorSchema } from "#/db/utils";
 import { CreateLocationSchema, UpdateLocationSchema} from "#/db/validations/location.validation";
-import { PaginatorSchema } from "#/db/validations/utils.validation";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+
+// CreateLocationFn,
+// GetLocationsFn,
+// GetLocationByIdFn,
+// UpdateLocationFn,
+
 
 // Creating a Location
 export const CreateLocationFn = createServerFn({ method: 'POST' })
@@ -32,7 +38,7 @@ export const GetLocationsFn = createServerFn({ method: "GET" })
             throw err
         }
     })
-    
+
 // Getting a single location by id
 export const GetLocationByIdFn = createServerFn({ method: 'GET' })
     .middleware([])

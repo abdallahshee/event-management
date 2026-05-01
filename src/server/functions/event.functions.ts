@@ -1,9 +1,13 @@
 import { db } from "#/db";
 import { event, location } from "#/db/schema";
+import { PaginatorSchema } from "#/db/utils";
 import { CreateEventSchema } from "#/db/validations/event.validation";
-import { PaginatorSchema } from "#/db/validations/utils.validation";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+
+// CreateEventFn
+// GetEventsFn
+// GetEventByIdFn
 
 // Create an Event
 export const CreateEventFn = createServerFn({ method: 'POST' })
@@ -21,7 +25,8 @@ export const CreateEventFn = createServerFn({ method: 'POST' })
             } else {
                 theId = data.locationId
             }
-            const [theEvents] = await db.insert(event).values({ ...data, locationId: theId }).returning()
+            const [theEvents] = await db.insert(event)
+            .values({ ...data, locationId: theId,slotsRemaining:data.capacity }).returning()
             return theEvents
         } catch (err) {
             console.log('Error from CreateEventFn ', err)

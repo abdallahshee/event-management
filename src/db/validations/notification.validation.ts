@@ -22,9 +22,7 @@
 import { createInsertSchema } from "drizzle-zod";
 import { notification } from "../schema";
 import z from "zod"
-import { PaginatorSchema } from "./utils.validation";
-import { SupportedNotifications } from "../schema/utils.schema";
-
+import { PaginatorSchema, SupportedNotifications } from "../utils";
 
 export const CreateNotificationSchema = createInsertSchema(notification, {
   title: z.string().min(1, "Title is required").max(100, "Title too long"),
@@ -40,23 +38,23 @@ export const CreateNotificationSchema = createInsertSchema(notification, {
 export type CreateNotificationRequest = z.infer<typeof CreateNotificationSchema>
 
 
-export const NoteByIdSchema=z.object({
-    type:z.enum([...SupportedNotifications]),
+export const GetNotificationByIdSchema=z.object({
+    type:z.enum([...SupportedNotifications]).optional(),
     notificationId:z.string().min(1)
 })
-export type NotesByIdRequest=z.infer<typeof NoteByIdSchema>
+export type GetNotificationByIdRequest=z.infer<typeof GetNotificationByIdSchema>
 
 
-export const NotesByUserIdSchema=z.object({
-    type:z.enum([...SupportedNotifications]),
+export const GetUserNotificationsSchema=z.object({
+    type:z.enum(SupportedNotifications).optional(),
     userId:z.string().min(1),
     paginator:PaginatorSchema
 })
-export type NotesByUserIdRequest=z.infer<typeof NotesByUserIdSchema>
+export type GetUserNotificationsRequest=z.infer<typeof GetUserNotificationsSchema>
 
 
-export const NotesSchema=z.object({
-    type:z.enum([...SupportedNotifications]),
+export const GetNotificationsSchema=z.object({
+    type:z.enum([...SupportedNotifications]).optional(),
     paginator:PaginatorSchema
 })
-export type NotesRequest=z.infer<typeof NotesSchema>
+export type GetNotificationsRequest=z.infer<typeof GetNotificationsSchema>

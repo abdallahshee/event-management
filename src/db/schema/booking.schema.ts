@@ -4,13 +4,14 @@ import { relations } from "drizzle-orm";
 import { payment } from "./payment.schema";
 import { nanoid } from 'nanoid'
 import { event } from "./event.schema";
+import { SupportedBookingStatus } from "../utils";
 
 export const booking = pgTable('booking', {
   id: text('id').primaryKey().notNull().$default(() => nanoid(16)),
   userId: uuid('user_id').notNull().references(() => profile.id),
   amount:numeric('price', { precision: 10, scale: 2,mode:"number" }).notNull(),
   eventId: text('event_id').notNull().references(()=>event.id),
-  status: text('status', { enum: ['pending', 'confirmed', 'cancelled'] }).default('pending').notNull(),
+  status: text('status', { enum:SupportedBookingStatus }).default('pending').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().$onUpdate(() => new Date()),
 }

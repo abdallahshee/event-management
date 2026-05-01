@@ -8,6 +8,7 @@ import { review } from "./review.schema";
 import { location } from "./location.schema";
 import { booking } from "./booking.schema";
 import { payment } from "./payment.schema";
+import { SupportedEventCategories, SupportedEventStatus } from "../utils";
 
 
 export const event = pgTable('event', {
@@ -22,9 +23,8 @@ export const event = pgTable('event', {
   slotsRemaining: integer('slots_remaining').notNull(),
   startsAt: timestamp('starts_at', { withTimezone: true,mode:"string" }).notNull(),
   endsAt: timestamp('ends_at', { withTimezone: true,mode:"string" }).notNull(),
-  category: text('category', {enum: ['music', 'tech', 'food', 'sports', 'arts', 'business']
-  }),
-  status: text('status', { enum: ['draft', 'published', 'cancelled'] }).default('draft').notNull(),
+  category: text('category', { enum:SupportedEventCategories }),
+  status: text('status', { enum:SupportedEventStatus }).default('draft').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true,mode:"string" }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true,mode:"string" }).notNull().$onUpdate(() => new Date().toISOString()),
 })
