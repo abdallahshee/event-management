@@ -7,12 +7,12 @@ import { CreatePaymentFn, GetPaymentByReferenceFn, GetPaymentsFn, GetUserPayment
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query"
 import type { CreatePaymentRequest, GetPaymentsRequest, GetUserPaymentsRequest } from "../validations/payment.validation"
 
-export const CreatePaymentMutationOption = (data: CreatePaymentRequest) => {
+export const CreatePaymentMutationOption = () => {
     const queryClient = useQueryClient()
     return useMutation({
-        mutationFn: async () => CreatePaymentFn({ data }),
+        mutationFn: async (data: CreatePaymentRequest) => CreatePaymentFn({ data }),
         onSuccess: async () => await queryClient
-            .invalidateQueries({ queryKey: GetPaymentsQueryOption({ provider: "", paginaor: {} }).queryKey })
+            .invalidateQueries({ queryKey: GetPaymentsQueryOption({ provider: "", paginaor: {} }).queryKey,exact:true })
     })
 }
 

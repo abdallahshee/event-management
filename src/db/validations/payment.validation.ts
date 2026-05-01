@@ -38,15 +38,15 @@ export type CreatePaymentRequest = z.infer<typeof CreatePaymentSchema>
 
 
 export const GetPaymentsSchema = z.object({
-  paginaor: PaginatorSchema,
-  provider: z.enum([...SupportedProviders], "Invalid Payment Provider")
+  paginator: PaginatorSchema,
+  provider: z.enum(SupportedProviders, "Invalid Payment Provider")
 })
 export type GetPaymentsRequest = z.infer<typeof GetPaymentsSchema>
 
 
-export const GetUserPaymentsSchema = CreatePaymentSchema.pick({
-  userId: true
-}).extend({
-  provider: z.enum([...SupportedProviders], "Invalid Payment Provider").optional()
+export const GetUserPaymentsSchema = GetPaymentsSchema.extend({
+  userId:z.string().min(1)
 })
+  
+
 export type GetUserPaymentsRequest = z.infer<typeof GetUserPaymentsSchema>

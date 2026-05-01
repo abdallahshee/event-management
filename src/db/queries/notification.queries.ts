@@ -8,10 +8,10 @@ import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query
 import type { CreateNotificationRequest, GetNotificationByIdRequest, GetNotificationsRequest, GetUserNotificationsRequest } from "../validations/notification.validation"
 
 
-export const CreateNotificationMutationOption=(data:CreateNotificationRequest)=>{
+export const CreateNotificationMutationOption=()=>{
     const queryClient=useQueryClient()
     return useMutation({
-        mutationFn:async()=>CreateNotificationFn({data}),
+        mutationFn:async(data:CreateNotificationRequest)=>CreateNotificationFn({data}),
         onSuccess:async()=>queryClient
         .invalidateQueries({queryKey:GetNotificationsQueryOption({paginator:{}}).queryKey})
     })

@@ -30,19 +30,25 @@ export const GetNotificationsFn = createServerFn({ method: 'GET' })
     .inputValidator(GetNotificationsSchema)
     .handler(async ({ data }) => {
         try {
-            let theNots;
-            if (!data.type) {
-                theNots = await db.query.notification.findMany()
-            } else {
-                theNots = await db.query.notification.findMany({ where: eq(notification.type, data.type) })
+            const page = data.paginator.page ?? 1
+            const limit = data.paginator.limit ?? 10
+            const offset = (page - 1) * limit
+
+            const whereClause = !data.type ? undefined : eq(notification.type, data.type)
+
+            const [theNots, total] = await Promise.all([
+                db.query.notification.findMany({ where: whereClause, limit, offset }),
+                db.$count(notification, whereClause)
+            ])
+            return {
+                data: theNots,
+                meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
             }
-            return theNots
         } catch (err) {
             console.log('Error from GetNotificationsFn ', err)
             throw err
         }
     })
-
 // Getting a Notification By id
 export const GetNotificationByIdFn = createServerFn({ method: 'GET' })
     .middleware([])
@@ -69,14 +75,22 @@ export const GetUserNotificationsFn = createServerFn({ method: 'GET' })
     .inputValidator(GetUserNotificationsSchema)
     .handler(async ({ data }) => {
         try {
-            let UserNots;
-            if (!data.type) {
-                UserNots = await db.query.notification.findMany({ where: eq(notification.userId, data.userId) })
-            } else {
-                UserNots = await db.query.notification
-                    .findMany({ where: and(eq(notification.userId, data.userId), eq(notification.type, data.type)) })
+            const page = data.paginator.page ?? 1
+            const limit = data.paginator.limit ?? 10
+            const offset = (page - 1) * limit
+
+            const whereClause = !data.type
+                ? eq(notification.userId, data.userId)
+                : and(eq(notification.userId, data.userId), eq(notification.type, data.type))
+
+            const [UserNots, total] = await Promise.all([
+                db.query.notification.findMany({ where: whereClause, limit, offset }),
+                db.$count(notification, whereClause)
+            ])
+            return {
+                data: UserNots,
+                meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
             }
-            return UserNots
         } catch (err) {
             console.log('Error from GetUserNotificationFn ', err)
             throw err

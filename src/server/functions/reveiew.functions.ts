@@ -30,17 +30,25 @@ export const GetReviewsByEventIdFn = createServerFn({ method: 'GET' })
     .inputValidator(GetEventReviewsSchema)
     .handler(async ({ data }) => {
         try {
-            const theReviews = await db.query.review.findMany(
-                {
-                    with: {
-                        user: true,
-                        event: true
+            const page = data.paginator.page ?? 1
+            const limit = data.paginator.limit ?? 10
+            const offset = (page - 1) * limit
 
-                    }, where: eq(review.eventId, data.eventId)
-                })
-            return theReviews
+            const [theReviews, total] = await Promise.all([
+                db.query.review.findMany({
+                    with: { user: true, event: true },
+                    where: eq(review.eventId, data.eventId),
+                    limit,
+                    offset,
+                }),
+                db.$count(review, eq(review.eventId, data.eventId))
+            ])
+            return {
+                data: theReviews,
+                meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
+            }
         } catch (err) {
-            console.log('Error from GetReviewsByEventIdF ', err)
+            console.log('Error from GetReviewsByEventIdFn ', err)
             throw err
         }
     })

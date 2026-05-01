@@ -27,11 +27,20 @@ export const CreateBookingFn = createServerFn({ method: 'POST' })
 export const GetBookingsFn = createServerFn({ method: 'POST' })
     .middleware([])
     .inputValidator(PaginatorSchema)
-    .handler(async () => {
+    .handler(async ({ data }) => {
         try {
-            const theBookings = await db.query.booking.findMany()
-            return theBookings
+            const page = data.page ?? 1
+            const limit = data.limit ?? 10
+            const offset = (page - 1) * limit
 
+            const [theBookings, total] = await Promise.all([
+                db.query.booking.findMany({ limit, offset }),
+                db.$count(booking)
+            ])
+            return {
+                data: theBookings,
+                meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
+            }
         } catch (err) {
             console.log('Error from GetBookingsFn ', err)
             throw err
@@ -58,8 +67,22 @@ export const GetUserBookingsFn = createServerFn({ method: 'GET' })
     .inputValidator(GetUserBookingsSchema)
     .handler(async ({ data }) => {
         try {
-            const theBookings = await db.query.booking.findMany({ where: eq(booking.userId, data.userId) })
-            return theBookings
+            const page = data.paginator.page ?? 1
+            const limit = data.paginator.limit ?? 10
+            const offset = (page - 1) * limit
+
+            const [theBookings, total] = await Promise.all([
+                db.query.booking.findMany({
+                    where: eq(booking.userId, data.userId),
+                    limit,
+                    offset,
+                }),
+                db.$count(booking, eq(booking.userId, data.userId))
+            ])
+            return {
+                data: theBookings,
+                meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
+            }
         } catch (err) {
             console.log('Error from GetUserBookingsFn ', err)
             throw err

@@ -29,10 +29,20 @@ export const CreateLocationFn = createServerFn({ method: 'POST' })
 export const GetLocationsFn = createServerFn({ method: "GET" })
     .middleware([])
     .inputValidator(PaginatorSchema)
-    .handler(async () => {
+    .handler(async ({ data }) => {
         try {
-            const thelocations = await db.query.location.findMany()
-            return thelocations
+            const page = data.page ?? 1
+            const limit = data.limit ?? 10
+            const offset = (page - 1) * limit
+
+            const [theLocations, total] = await Promise.all([
+                db.query.location.findMany({ limit, offset }),
+                db.$count(location)
+            ])
+            return {
+                data: theLocations,
+                meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
+            }
         } catch (err) {
             console.log("Error from GetLocationsFn", err)
             throw err

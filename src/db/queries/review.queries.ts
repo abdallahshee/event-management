@@ -3,10 +3,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { CreateReviewRequest, GetEventReviewsRequest } from "../validations/review.validation"
 
 // CreateReviewFn,
-export const CreateReviewMutationOption = (data: CreateReviewRequest) => {
+export const CreateReviewMutationOption = () => {
     const queryClient = useQueryClient()
     return useMutation({
-        mutationFn: async () => CreateReviewFn({ data }),
+        mutationFn: async (data: CreateReviewRequest) => CreateReviewFn({ data }),
         onSuccess: async () => await queryClient
             .invalidateQueries({})
     })

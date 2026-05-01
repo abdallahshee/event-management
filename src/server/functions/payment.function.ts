@@ -30,23 +30,25 @@ export const GetPaymentsFn = createServerFn({ method: 'GET' })
     .inputValidator(GetPaymentsSchema)
     .handler(async ({ data }) => {
         try {
-            let payments;
-            if (!data.provider) {
-                payments = await db.query.payment.findMany({
-                    with: {
+            const page = data.paginator.page ?? 1
+            const limit = data.paginator.limit ?? 10
+            const offset = (page - 1) * limit
 
-                    }
-                })
-            } else {
-                payments = await db.query.payment.findMany({ where: eq(payment.provider, data.provider) })
+            const whereClause = !data.provider ? undefined : eq(payment.provider, data.provider)
+
+            const [payments, total] = await Promise.all([
+                db.query.payment.findMany({ where: whereClause, limit, offset }),
+                db.$count(payment, whereClause)
+            ])
+            return {
+                data: payments,
+                meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
             }
-            return payments
         } catch (err) {
             console.log('Error from GetPaymentsFn ', err)
             throw err
         }
     })
-
 // Get Payment By Reference Number
 export const GetPaymentByReferenceFn = createServerFn({ method: 'GET' })
     .middleware([])
@@ -67,14 +69,22 @@ export const GetUserPaymentsFn = createServerFn({ method: 'GET' })
     .inputValidator(GetUserPaymentsSchema)
     .handler(async ({ data }) => {
         try {
-            let userPayments;
-            if (!data.provider) {
-                userPayments = await db.query.payment.findMany({ where: eq(payment.userId, data.userId) })
-            } else {
-                userPayments = await db.query.payment
-                    .findMany({ where: and(eq(payment.userId, data.userId), eq(payment.provider, data.provider)) })
+            const page = data.paginator.page ?? 1
+            const limit = data.paginator.limit ?? 10
+            const offset = (page - 1) * limit
+
+            const whereClause = !data.provider
+                ? eq(payment.userId, data.userId)
+                : and(eq(payment.userId, data.userId), eq(payment.provider, data.provider))
+
+            const [userPayments, total] = await Promise.all([
+                db.query.payment.findMany({ where: whereClause, limit, offset }),
+                db.$count(payment, whereClause)
+            ])
+            return {
+                data: userPayments,
+                meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
             }
-            return userPayments
         } catch (err) {
             console.log('Error from GetUserPaymentsFn ', err)
             throw err

@@ -40,12 +40,22 @@ export const GetEventsFn = createServerFn({ method: 'GET' })
     .inputValidator(PaginatorSchema)
     .handler(async ({ data }) => {
         try {
-            const theEvents = await db.query.event.findMany({
-                with: {
-                    location: true,
-                }
-            })
-            return theEvents
+            const page = data.page ?? 1
+            const limit = data.limit ?? 10
+            const offset = (page - 1) * limit
+
+            const [theEvents, total] = await Promise.all([
+                db.query.event.findMany({
+                    with: { location: true },
+                    limit,
+                    offset,
+                }),
+                db.$count(event)
+            ])
+            return {
+                data: theEvents,
+                meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
+            }
         } catch (err) {
             console.log('Error from GetEventsFn ', err)
             throw err
@@ -70,8 +80,8 @@ export const UpdateEventFn = createServerFn({ method: 'POST' })
     .inputValidator(UpdateEventSchema)
     .handler(async ({ data }) => {
         try {
-            const [theEvent] = await db.update(event).set({ ...data }).where(eq(event.id, data.eventId)).returning({ theId: event.id })
-            return theEvent.theId
+            const [theEvent] = await db.update(event).set({ ...data }).where(eq(event.id, data.eventId)).returning()
+            return theEvent
         } catch (err) {
             console.log('Error from UpdateEventFn ', err)
             throw err

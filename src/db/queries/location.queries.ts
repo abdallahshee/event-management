@@ -26,11 +26,17 @@ export const GetLocationByIdQueryOption=(data:{locationId:string})=>queryOptions
     queryFn:async()=>GetLocationByIdFn({data})
 })
 
-export const UpdateLocationMutationOption=(data:UpdateLocationRequest)=>{
+export const UpdateLocationMutationOption=()=>{
     const queryClient=useQueryClient()
     return useMutation({
-        mutationFn:async()=>UpdateLocationFn({data}),
-        onSuccess:async(variables,data)=>queryClient
-        .setQueriesData({queryKey:GetLocationByIdQueryOption({locationId:variables.id}).queryKey},data)
+        mutationFn:async(data:UpdateLocationRequest)=>UpdateLocationFn({data}),
+        onSuccess:async(data,variables)=>{
+        queryClient
+        .setQueryData(GetLocationByIdQueryOption({locationId:variables.locationId}).queryKey,data)
+        await queryClient.invalidateQueries({
+                queryKey: GetLocationsQueryOption({}).queryKey,
+                exact: true
+            })
+    }
     })
 }
