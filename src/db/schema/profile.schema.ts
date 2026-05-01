@@ -15,6 +15,7 @@ export const profile = pgTable('profile', {
   id: uuid('id').primaryKey().references(() => authUsers.id, { onDelete: 'cascade' }),         // same UUID as auth.users.id
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
+  email:text('email').notNull(),
   avatarUrl: text('avatar_url'),
   role: text("role", { enum:SupportedUserRoles }).default('user').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

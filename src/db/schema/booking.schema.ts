@@ -1,4 +1,4 @@
-import { uuid, pgTable, numeric, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { uuid, pgTable, numeric, text, timestamp, unique, index } from "drizzle-orm/pg-core";
 import { profile } from "./profile.schema";
 import { relations } from "drizzle-orm";
 import { payment } from "./payment.schema";
@@ -15,10 +15,10 @@ export const booking = pgTable('booking', {
   createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().$onUpdate(() => new Date()),
 }
-// , (table) => ({
-//   uniqueUserEvent: unique('unique_user_event').on(table.eventId, table.userId)
-// }
-// )
+, (table) => [
+   unique('unique_user_event').on(table.eventId, table.userId),
+   index("user_event").on(table.userId, table.eventId)
+]
 )
 
 export const bookingRelations = relations(booking, ({ one }) => ({

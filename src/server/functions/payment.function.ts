@@ -37,7 +37,7 @@ export const GetPaymentsFn = createServerFn({ method: 'GET' })
             const whereClause = !data.provider ? undefined : eq(payment.provider, data.provider)
 
             const [payments, total] = await Promise.all([
-                db.query.payment.findMany({with:{event:true}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
+                db.query.payment.findMany({with:{event:{columns:{title:true}}}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
                 db.$count(payment, whereClause)
             ])
             return {
@@ -55,7 +55,7 @@ export const GetPaymentByReferenceFn = createServerFn({ method: 'GET' })
     .inputValidator((data: { reference: string }) => data)
     .handler(async ({ data }) => {
         try {
-            const thePayment = db.query.payment.findFirst({with:{event:true}, where: eq(payment.referenceNumber, data.reference) })
+            const thePayment = db.query.payment.findFirst({with:{event:{columns:{title:true}}}, where: eq(payment.referenceNumber, data.reference) })
             return thePayment
         } catch (err) {
             console.log('Error from GetPaymentByReferenceFn ', err)
@@ -78,7 +78,7 @@ export const GetUserPaymentsFn = createServerFn({ method: 'GET' })
                 : and(eq(payment.userId, data.userId), eq(payment.provider, data.provider))
 
             const [userPayments, total] = await Promise.all([
-                db.query.payment.findMany({with:{event:true}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
+                db.query.payment.findMany({with:{event:{columns:{title:true}}}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
                 db.$count(payment, whereClause)
             ])
             return {
@@ -105,7 +105,7 @@ export const GetEventPaymentsFn = createServerFn({ method: "GET" })
                 : and(eq(payment.eventId, data.eventId), eq(payment.provider, data.provider))
 
             const [payments, total] = await Promise.all([
-                db.query.payment.findMany({with:{event:true}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
+                db.query.payment.findMany({with:{event:{columns:{title:true}}}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
                 db.$count(payment, whereClause)
             ])
             return {

@@ -13,9 +13,9 @@ export const review = pgTable('review', {
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().$onUpdate(() => new Date()),
 }, 
-(table) => ({
-    uniqueUserEvent: unique().on(table.userId, table.eventId), // one review per user per event
-})
+(table)=>[
+    unique('unique_user_review').on(table.userId, table.eventId)
+]
 )
 
 export const reviewRelations = relations(review, ({ one }) => ({

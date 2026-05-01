@@ -27,7 +27,8 @@ export const event = pgTable('event', {
   status: text('status', { enum:SupportedEventStatus }).default('draft').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true,mode:"string" }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true,mode:"string" }).notNull().$onUpdate(() => new Date().toISOString()),
-})
+},
+)
 
 export const eventRelations = relations(event, ({one, many }) => ({
   location:one(location,{

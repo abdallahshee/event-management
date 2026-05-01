@@ -15,18 +15,15 @@ import z from "zod";
 export const SignUpSchema = createInsertSchema(profile, {
   firstName: z.string().min(2, "First name must be at least 2 characters").max(50, "First name too long"),
   lastName: z.string().min(2, "Last name must be at least 2 characters").max(50, "Last name too long"),
+  email: z.email().nonempty(),
 })
-  .extend({
-    email: z.email().nonempty(),
-    password: z.string(),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-  })
   .pick({
     email: true,
-    password: true,
-    confirmPassword: true,
     firstName: true,
     lastName: true,
+  })  .extend({
+    password: z.string(),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
   })
   .refine(data => data.password === data.confirmPassword, {
     message: "Passwords do not match",

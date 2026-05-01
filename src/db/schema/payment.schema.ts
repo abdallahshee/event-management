@@ -1,4 +1,4 @@
-import { pgTable, numeric, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgTable, numeric, text, timestamp, uuid, unique, index } from "drizzle-orm/pg-core";
 import { booking } from "./booking.schema";
 import { relations } from "drizzle-orm";
 import { profile } from "./profile.schema";
@@ -18,7 +18,13 @@ export const payment = pgTable('payment', {
   status: text('status', { enum: SupportedPaymentStatus }).default('pending').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().$onUpdate(() => new Date()),
-})
+},
+(table)=>[
+  unique("user_payment_reference").on(table.userId, table.eventId),
+  index("payment_event_id").on(table.eventId),
+  index("payment_user_id").on(table.userId),
+]
+)
 
 export const paymentRelations = relations(payment, ({ one }) => ({
   event:one(event,{

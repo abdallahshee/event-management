@@ -53,7 +53,26 @@ export const GetBookingByIdFn = createServerFn({ method: 'POST' })
     .inputValidator((data: { bookingId: string }) => data)
     .handler(async ({ data }) => {
         try {
-            const theBooking = await db.query.booking.findFirst({with:{event:true,user:true}, where: eq(booking.id, data.bookingId) })
+            const theBooking = await db.query.booking.
+            findFirst({with:{event:{
+                columns:{
+                    title:true,
+                    startsAt:true,
+                    coverImage:true,
+                    description:true
+                },
+                 with:{location:{
+                    columns:{name:true}
+                 }}
+            },user:{
+                columns:{
+                    lastName:true,
+                    firstName:true,
+                    email:true,
+
+                }
+            }},
+                 where: eq(booking.id, data.bookingId) })
             return theBooking
         } catch (err) {
             console.log('Error from GetBookingsByIdFn ', err)

@@ -36,7 +36,18 @@ export const GetReviewsByEventIdFn = createServerFn({ method: 'GET' })
 
             const [theReviews, total] = await Promise.all([
                 db.query.review.findMany({
-                    with: { user: true, event: true },
+                    with: { user:{
+                        columns:{
+                            firstName:true,
+                            email:true,
+                            lastName:true,
+                            avatarUrl:true
+                        }
+                    }, event: {
+                        columns:{
+                            title:true,
+                        }
+                    } },
                     where: eq(review.eventId, data.eventId),
                     limit,
                     offset,
