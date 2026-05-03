@@ -11,7 +11,8 @@ export const CreateEventMutationOption = () => {
     const queryClient = useQueryClient()
     return useMutation({
         mutationFn: async (data: CreateEventRequest) => await CreateEventFn({ data }),
-        onSuccess: async () => await queryClient.invalidateQueries({ queryKey: GetEventsQueryOption({}).queryKey,exact:true  })
+        onSuccess: async () => await queryClient
+        .invalidateQueries({ queryKey: GetEventsQueryOption({}).queryKey,exact:true  })
     })
 }
 
@@ -32,7 +33,8 @@ export const UpdateEventQueryOption = () => {
         mutationFn: async (data: UpdateEventRequest) => UpdateEventFn({ data }),
         onSuccess:async(data, variables)=>{
          queryClient.setQueryData(GetEventByIdQueryOption({eventId:variables.eventId}).queryKey, data)
-             await queryClient.invalidateQueries({queryKey:GetEventsQueryOption({}).queryKey,exact:true })
+             await queryClient
+             .invalidateQueries({queryKey:GetEventsQueryOption({}).queryKey,exact:true })
         }
        
     })

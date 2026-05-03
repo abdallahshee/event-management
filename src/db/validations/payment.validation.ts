@@ -20,8 +20,8 @@ export const CreatePaymentSchema = createInsertSchema(payment, {
   eventId: z.string().nonempty(),
   userId: z.string().nonempty(),
   amount: z.number().min(1, "Amount must be greater than 0"),
-  currency: z.enum(SupportedCurrencies, { message: "Unsupported currency" }).default('USD'),
-  provider: z.enum(SupportedProviders, { message: "Unsupported payment provider" }),
+  currency: z.enum(SupportedCurrencies, "Unsupported currency" ).default('USD').optional(),
+  provider: z.enum(SupportedProviders, "Unsupported payment provider" ).optional(),
   referenceNumber: z.string().min(1, "Transaction ID is required"),
 })
   .pick({
@@ -38,9 +38,8 @@ export type CreatePaymentRequest = z.infer<typeof CreatePaymentSchema>
 
 
 export const GetPaymentsSchema = z.object({
-  paginator: PaginatorSchema,
-  provider: z.enum(SupportedProviders, "Invalid Payment Provider")
-})
+  provider: z.enum(SupportedProviders, "Invalid Payment Provider").optional()
+}).extend(PaginatorSchema.shape)
 export type GetPaymentsRequest = z.infer<typeof GetPaymentsSchema>
 
 

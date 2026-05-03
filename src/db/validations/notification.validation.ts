@@ -27,7 +27,7 @@ import { PaginatorSchema, SupportedNotifications } from "../utils";
 export const CreateNotificationSchema = createInsertSchema(notification, {
   title: z.string().min(1, "Title is required").max(100, "Title too long"),
   body: z.string().min(1, "Body is required").max(500, "Body too long"),
-  type: z.enum(SupportedNotifications, { message: "Invalid notification type" }),
+  type: z.enum(SupportedNotifications,  "Invalid notification type" ).optional(),
 })
   .pick({
     title: true,
@@ -39,7 +39,7 @@ export type CreateNotificationRequest = z.infer<typeof CreateNotificationSchema>
 
 
 export const GetNotificationByIdSchema = z.object({
-  type: z.enum([...SupportedNotifications]).optional(),
+  type: z.enum(SupportedNotifications).optional(),
   notificationId: z.string().min(1)
 })
 export type GetNotificationByIdRequest = z.infer<typeof GetNotificationByIdSchema>
@@ -48,13 +48,11 @@ export type GetNotificationByIdRequest = z.infer<typeof GetNotificationByIdSchem
 export const GetUserNotificationsSchema = z.object({
   type: z.enum(SupportedNotifications).optional(),
   userId: z.string().min(1),
-  paginator: PaginatorSchema
-})
+}).extend(PaginatorSchema.shape)
 export type GetUserNotificationsRequest = z.infer<typeof GetUserNotificationsSchema>
 
 
 export const GetNotificationsSchema = z.object({
-  type: z.enum([...SupportedNotifications]).optional(),
-  paginator: PaginatorSchema
-})
+  type: z.enum(SupportedNotifications).optional(),
+}).extend(PaginatorSchema.shape)
 export type GetNotificationsRequest = z.infer<typeof GetNotificationsSchema>

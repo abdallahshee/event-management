@@ -34,7 +34,8 @@ export const GetBookingsFn = createServerFn({ method: 'POST' })
             const offset = (page - 1) * limit
 
             const [theBookings, total] = await Promise.all([
-                db.query.booking.findMany({with:{event:true, user:true}, limit, offset,orderBy: asc(booking.createdAt) }),
+                db.query.booking
+                .findMany({with:{event:true, user:true}, limit, offset,orderBy: asc(booking.createdAt) }),
                 db.$count(booking)
             ])
             return {
@@ -86,8 +87,8 @@ export const GetUserBookingsFn = createServerFn({ method: 'GET' })
     .inputValidator(GetUserBookingsSchema)
     .handler(async ({ data }) => {
         try {
-            const page = data.paginator.page ?? 1
-            const limit = data.paginator.limit ?? 10
+            const page = data.page ?? 1
+            const limit = data.limit ?? 10
             const offset = (page - 1) * limit
 
             const [theBookings, total] = await Promise.all([

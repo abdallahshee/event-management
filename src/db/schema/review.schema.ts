@@ -8,7 +8,7 @@ export const review = pgTable('review', {
     id: text('id').primaryKey().$default(() => nanoid(16)),
     eventId: text('event_id').notNull().references(() => event.id),
     userId: uuid('user_id').notNull().references(() => profile.id),
-    rating: integer('rating').notNull(),
+    rating: integer('rating'),
     comment: text('comment'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().$onUpdate(() => new Date()),

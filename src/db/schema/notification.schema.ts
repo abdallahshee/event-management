@@ -8,7 +8,7 @@ export const notification = pgTable('notification', {
     userId: uuid('user_id').notNull().references(() => profile.id),
     title: text('title').notNull(),
     body: text('body').notNull(),
-    type: text('type', { enum: SupportedNotifications }).notNull(),
+    type: text('type', { enum: SupportedNotifications }),
     isRead: boolean('is_read').default(false).notNull(),
     readAt: timestamp('read_at', { withTimezone: true, mode: 'date' }),  // null until read
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),

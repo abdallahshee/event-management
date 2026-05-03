@@ -15,7 +15,7 @@ export const CreateEventSchema = createInsertSchema(event, {
   endsAt: z.string().min(1, "Invalid end date"),
   coverImage: z.url("Invalid image URL").optional(),
   locationId: z.string().optional(),
-  category: z.enum(SupportedEventCategories),
+  category: z.enum(SupportedEventCategories, "Invalid Event Category").optional(),
   isFeatured: z.boolean().default(false),
 })
   .pick({

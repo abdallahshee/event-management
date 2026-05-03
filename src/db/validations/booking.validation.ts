@@ -26,9 +26,8 @@ export type CreateBookingRequest = z.infer<typeof CreateBookingSchema>
 
 
 export const GetUserBookingsSchema = CreateBookingSchema.omit({ amount: true, eventId: true })
-  .extend({
-    paginator: PaginatorSchema
-  })
+.extend(PaginatorSchema.shape)
+
 export type GetUserBookingsRequest = z.infer<typeof GetUserBookingsSchema>
 
 

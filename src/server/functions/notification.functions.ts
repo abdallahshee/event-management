@@ -30,8 +30,8 @@ export const GetNotificationsFn = createServerFn({ method: 'GET' })
     .inputValidator(GetNotificationsSchema)
     .handler(async ({ data }) => {
         try {
-            const page = data.paginator.page ?? 1
-            const limit = data.paginator.limit ?? 10
+            const page = data.page ?? 1
+            const limit = data.limit ?? 10
             const offset = (page - 1) * limit
 
             const whereClause = !data.type ? undefined : eq(notification.type, data.type)
@@ -75,8 +75,8 @@ export const GetUserNotificationsFn = createServerFn({ method: 'GET' })
     .inputValidator(GetUserNotificationsSchema)
     .handler(async ({ data }) => {
         try {
-            const page = data.paginator.page ?? 1
-            const limit = data.paginator.limit ?? 10
+            const page = data.page ?? 1
+            const limit = data.limit ?? 10
             const offset = (page - 1) * limit
 
             const whereClause = !data.type

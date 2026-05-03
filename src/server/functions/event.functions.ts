@@ -17,7 +17,7 @@ export const CreateEventFn = createServerFn({ method: 'POST' })
         try {
             let theId;
             if (!data.locationId) {
-                // create the locatio if the location is not set, 
+                // create the location if the location is not set, 
                 // ie the admin selected the existing location
                 const [thelocationId] = await db.insert(location)
                     .values({ ...data.location }).returning({ locationID: location.id })
@@ -46,7 +46,7 @@ export const GetEventsFn = createServerFn({ method: 'GET' })
 
             const [theEvents, total] = await Promise.all([
                 db.query.event.findMany({
-                    with: { location: true },
+                    with: { location: {columns:{name:true}} },
                     limit,
                     offset,
                     orderBy: asc(event.startsAt)
@@ -68,7 +68,8 @@ export const GetEventByIdFn = createServerFn({ method: 'GET' })
     .inputValidator((data: { eventId: string }) => data)
     .handler(async ({ data }) => {
         try {
-            const theEvent = await db.query.event.findFirst({ with: { location: true }, where: eq(event.id, data.eventId) })
+            const theEvent = await db.query.event
+            .findFirst({ with: { location: true }, where: eq(event.id, data.eventId) })
             return theEvent
         } catch (err) {
             console.log('Error from GetEventByIdFn ', err)
@@ -83,7 +84,8 @@ export const UpdateEventFn = createServerFn({ method: 'POST' })
         try {
             const [theEvent] = await db.update(event).set({ ...data })
                 .where(eq(event.id, data.eventId)).returning({ eventId: event.id })
-            const tEvent = await db.query.event.findFirst({ with: { location: true }, where: eq(event.id, theEvent.eventId) })
+            const tEvent = await db.query.event
+            .findFirst({ with: { location: true }, where: eq(event.id, theEvent.eventId) })
             return tEvent
         } catch (err) {
             console.log('Error from UpdateEventFn ', err)

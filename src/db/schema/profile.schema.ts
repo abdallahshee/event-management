@@ -17,7 +17,7 @@ export const profile = pgTable('profile', {
   lastName: text('last_name').notNull(),
   email:text('email').notNull(),
   avatarUrl: text('avatar_url'),
-  role: text("role", { enum:SupportedUserRoles }).default('user').notNull(),
+  role: text("role", { enum:SupportedUserRoles }).default('user'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().$onUpdate(() => new Date()),
 })

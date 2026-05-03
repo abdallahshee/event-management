@@ -11,7 +11,7 @@ export const booking = pgTable('booking', {
   userId: uuid('user_id').notNull().references(() => profile.id),
   amount:numeric('price', { precision: 10, scale: 2,mode:"number" }).notNull(),
   eventId: text('event_id').notNull().references(()=>event.id),
-  status: text('status', { enum:SupportedBookingStatus }).default('pending').notNull(),
+  status: text('status', { enum:SupportedBookingStatus }).default('pending'),
   createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().$onUpdate(() => new Date()),
 }

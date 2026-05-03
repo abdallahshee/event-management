@@ -12,7 +12,8 @@ export const CreateLocationMutationOption=(data:CreateLocationRequest)=>{
     const queryClient=useQueryClient()
     return useMutation({
         mutationFn:async()=>await CreateLocationFn({data}),
-        onSuccess:async()=>await queryClient.invalidateQueries({queryKey:GetLocationsQueryOption({}).queryKey})
+        onSuccess:async()=>await queryClient
+        .invalidateQueries({queryKey:GetLocationsQueryOption({}).queryKey,exact:true})
     })
 }
 

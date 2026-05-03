@@ -12,10 +12,10 @@ export const payment = pgTable('payment', {
   bookingId: text('booking_id').notNull().references(() => booking.id),
   eventId:text('event_id').notNull().references(()=>event.id),
   amount: numeric('amount', { precision: 10, scale: 2 ,mode:'number'}).notNull(),
-  currency: text('currency',{ enum:SupportedCurrencies }).notNull().default('USD'),
-  provider: text('provider',{ enum:SupportedProviders }).notNull(),           // 'stripe' | 'mpesa' | etc.
+  currency: text('currency',{ enum:SupportedCurrencies }).default('USD'),
+  provider: text('provider',{ enum:SupportedProviders }),           // 'stripe' | 'mpesa' | etc.
   referenceNumber: text('reference_number').primaryKey().notNull(),             // provider's transaction ID
-  status: text('status', { enum: SupportedPaymentStatus }).default('pending').notNull(),
+  status: text('status', { enum: SupportedPaymentStatus }).default('pending'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().$onUpdate(() => new Date()),
 },

@@ -24,7 +24,7 @@ export const event = pgTable('event', {
   startsAt: timestamp('starts_at', { withTimezone: true,mode:"string" }).notNull(),
   endsAt: timestamp('ends_at', { withTimezone: true,mode:"string" }).notNull(),
   category: text('category', { enum:SupportedEventCategories }),
-  status: text('status', { enum:SupportedEventStatus }).default('draft').notNull(),
+  status: text('status', { enum:SupportedEventStatus }).default('draft'),
   createdAt: timestamp('created_at', { withTimezone: true,mode:"string" }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true,mode:"string" }).notNull().$onUpdate(() => new Date().toISOString()),
 },

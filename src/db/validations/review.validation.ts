@@ -17,7 +17,7 @@ import { PaginatorSchema } from "../utils";
 
 export const CreateReviewSchema = createInsertSchema(review, {
   eventId: z.string().nonempty(),
-  rating: z.coerce.number().int().min(1, "Rating must be at least 1").max(5, "Rating cannot exceed 5"),
+  rating: z.coerce.number().int().min(1, "Rating must be at least 1").max(5, "Rating cannot exceed 5").optional(),
   comment: z.string().min(10, "Comment must be at least 10 characters").max(1000, "Comment too long"),
 })
   .pick({
@@ -30,6 +30,5 @@ export type CreateReviewRequest = z.infer<typeof CreateReviewSchema>
 
 export const GetEventReviewsSchema = z.object({
   eventId: z.string().nonempty(),
-  paginator: PaginatorSchema
-})
+}).extend(PaginatorSchema.shape)
 export type GetEventReviewsRequest = z.infer<typeof GetEventReviewsSchema>

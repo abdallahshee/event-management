@@ -30,12 +30,10 @@ export const GetPaymentsFn = createServerFn({ method: 'GET' })
     .inputValidator(GetPaymentsSchema)
     .handler(async ({ data }) => {
         try {
-            const page = data.paginator.page ?? 1
-            const limit = data.paginator.limit ?? 10
+            const page = data.page ?? 1
+            const limit = data.limit ?? 10
             const offset = (page - 1) * limit
-
             const whereClause = !data.provider ? undefined : eq(payment.provider, data.provider)
-
             const [payments, total] = await Promise.all([
                 db.query.payment.findMany({with:{event:{columns:{title:true}}}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
                 db.$count(payment, whereClause)
@@ -55,7 +53,9 @@ export const GetPaymentByReferenceFn = createServerFn({ method: 'GET' })
     .inputValidator((data: { reference: string }) => data)
     .handler(async ({ data }) => {
         try {
-            const thePayment = db.query.payment.findFirst({with:{event:{columns:{title:true}}}, where: eq(payment.referenceNumber, data.reference) })
+            const thePayment = db.query.payment
+            .findFirst({with:{event:{columns:{title:true}}},
+                 where: eq(payment.referenceNumber, data.reference) })
             return thePayment
         } catch (err) {
             console.log('Error from GetPaymentByReferenceFn ', err)
@@ -69,16 +69,17 @@ export const GetUserPaymentsFn = createServerFn({ method: 'GET' })
     .inputValidator(GetUserPaymentsSchema)
     .handler(async ({ data }) => {
         try {
-            const page = data.paginator.page ?? 1
-            const limit = data.paginator.limit ?? 10
+            const page = data.page ?? 1
+            const limit = data.limit ?? 10
             const offset = (page - 1) * limit
-
             const whereClause = !data.provider
                 ? eq(payment.userId, data.userId)
                 : and(eq(payment.userId, data.userId), eq(payment.provider, data.provider))
 
             const [userPayments, total] = await Promise.all([
-                db.query.payment.findMany({with:{event:{columns:{title:true}}}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
+                db.query.payment
+                .findMany({with:{event:{columns:{title:true}}}, 
+                    where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
                 db.$count(payment, whereClause)
             ])
             return {
@@ -96,16 +97,16 @@ export const GetEventPaymentsFn = createServerFn({ method: "GET" })
     .inputValidator(GetEventPaymentsSchema)
     .handler(async ({ data }) => {
         try {
-            const page = data.paginator.page ?? 1
-            const limit = data.paginator.limit ?? 10
+            const page = data.page ?? 1
+            const limit = data.limit ?? 10
             const offset = (page - 1) * limit
-
             const whereClause = !data.provider
                 ? eq(payment.eventId, data.eventId)
                 : and(eq(payment.eventId, data.eventId), eq(payment.provider, data.provider))
 
             const [payments, total] = await Promise.all([
-                db.query.payment.findMany({with:{event:{columns:{title:true}}}, where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
+                db.query.payment.findMany({with:{event:{columns:{title:true}}},
+                     where: whereClause, limit, offset,orderBy:asc(payment.createdAt) }),
                 db.$count(payment, whereClause)
             ])
             return {

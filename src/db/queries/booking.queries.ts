@@ -12,7 +12,8 @@ export const CreateBookingMutationOption = () => {
     const queryClient = useQueryClient()
     return useMutation({
         mutationFn: async (data: CreateBookingRequest) => await CreateBookingFn({ data }),
-        onSuccess: async () => await queryClient.invalidateQueries({ queryKey: GetBookingsQueryOption({}).queryKey })
+        onSuccess: async () => await queryClient
+        .invalidateQueries({ queryKey: GetBookingsQueryOption({}).queryKey ,exact:true})
     })
 }
 

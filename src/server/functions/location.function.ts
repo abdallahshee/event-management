@@ -73,7 +73,9 @@ export const GetLocationByIdFn = createServerFn({ method: 'GET' })
     .inputValidator((data: { locationId: string }) => data)
     .handler(async ({ data }) => {
         try {
-            const thelocation = await db.query.location.findFirst({with:{events:{columns:{title:true,capacity:true,slotsRemaining:true}}}, where: eq(location.id, data.locationId) })
+            const thelocation = await db.query.location
+            .findFirst({with:{events:{columns:{title:true,capacity:true,slotsRemaining:true}}},
+                 where: eq(location.id, data.locationId) })
             return thelocation
         } catch (err) {
             console.log("Error from GetLocationByIdFn", err)
@@ -89,7 +91,9 @@ export const UpdateLocationFn = createServerFn({ method: "POST" })
         try {
             const [thelocation] = await db.update(location).set({ ...data })
                 .where(eq(location.id, data.locationId)).returning({locationId:location.id})
-            const thelocat=await db.query.location.findFirst({with:{events:{columns:{title:true,capacity:true,slotsRemaining:true}}},where:eq(location.id,thelocation.locationId)})
+            const thelocat=await db.query.location
+            .findFirst({with:{events:{columns:{title:true,capacity:true,slotsRemaining:true}}}
+                ,where:eq(location.id,thelocation.locationId)})
                     return  thelocat      
         } catch (err) {
             console.log("Error from UpdateLocationFn", err)

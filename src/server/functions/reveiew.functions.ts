@@ -30,10 +30,10 @@ export const GetReviewsByEventIdFn = createServerFn({ method: 'GET' })
     .inputValidator(GetEventReviewsSchema)
     .handler(async ({ data }) => {
         try {
-            const page = data.paginator.page ?? 1
-            const limit = data.paginator.limit ?? 10
+            const page = data.page ?? 1
+            const limit = data.limit ?? 10
             const offset = (page - 1) * limit
-
+            
             const [theReviews, total] = await Promise.all([
                 db.query.review.findMany({
                     with: { user:{

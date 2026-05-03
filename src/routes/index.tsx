@@ -5,62 +5,44 @@ import {
 } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import '@mantine/dates/styles.css'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Search, Calendar, MapPin, Users, Clock, ImageOff, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useDebouncedValue } from '@mantine/hooks'
-import type { Event } from '#/db/validations/event.validation'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { GetEventsQueryOption } from '#/db/queries/event.queries'
 
-export const Route = createFileRoute('/')({
-  component: HomePage,
-})
-
-
-const CATEGORY_COLORS: Record<string, string> = {
-  music: 'pink', tech: 'blue', food: 'orange',
-  sports: 'green', arts: 'violet', business: 'indigo',
+// ── TYPES ──
+type EventItem = {
+  id: string
+  title: string
+  description: string | null
+  coverImage: string | null
+  category: string | null
+  price: number
+  capacity: number
+  slotsRemaining: number
+  startsAt: string
+  endsAt: string
+  status: string
+  isFeatured: boolean
+  locationId: string | null
+  location: { name: string } | null
 }
 
-const CATEGORIES = ['all', 'music', 'tech', 'food', 'sports', 'arts', 'business'] as const
-type Category = typeof CATEGORIES[number]
+type Category = 'all' | 'music' | 'tech' | 'food' | 'sports' | 'arts' | 'business'
 
-const PAGE_SIZE = 9
+const CATEGORIES: Category[] = ['all', 'music', 'tech', 'food', 'sports', 'arts', 'business']
+const CATEGORY_COLORS: Record<string, string> = {
+  music: 'violet', tech: 'blue', food: 'orange',
+  sports: 'green', arts: 'pink', business: 'cyan',
+}
 
-const MOCK_EVENTS: Event[] = [
-  ...Array.from({ length: 24 }, (_, i) => ({
-    id: String(i + 1),
-    title: ['Nairobi Tech Summit 2025', 'East Africa Business Forum', 'Creative Arts Festival', 'Startup Pitch Night', 'Women in Tech Conference', 'Digital Marketing Masterclass'][i % 6],
-    description: 'Join us for an incredible event experience.',
-    category: (['music', 'tech', 'food', 'sports', 'arts', 'business'] as const)[i % 6],
-    locationId: ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru'][i % 4],
-    price: ['0', '500', '1500', '2500', '5000'][i % 5],
-    capacity: 100 + i * 10,
-    slotsRemaining: Math.max(0, 80 - i * 3),
-    startsAt: new Date(2025, 5 + (i % 4), 10 + i).toISOString(),
-    endsAt: new Date(2025, 5 + (i % 4), 12 + i).toISOString(),
-    isFeatured: i % 5 === 0,
-    coverImage: i % 3 === 0 ? null : `https://picsum.photos/seed/${i + 1}/600/300`,
-    status: 'published' as const,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  })),
-  {
-    id: '25',
-    title: 'Savanna Music Festival 2025',
-    description: 'A celebration of African music and culture under the open sky.',
-    category: 'music' as const,
-    locationId: 'Uhuru Gardens, Nairobi',
-    price: '3500',
-    capacity: 2000,
-    slotsRemaining: 15,
-    startsAt: new Date(2025, 9, 18, 14, 0).toISOString(),
-    endsAt: new Date(2025, 9, 19, 23, 0).toISOString(),
-    isFeatured: true,
-    coverImage: 'https://picsum.photos/seed/savanna/600/300',
-    status: 'published' as const,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+export const Route = createFileRoute('/')({
+  loader: async ({ context }) => {
+    await context.queryClient.prefetchQuery(GetEventsQueryOption({ limit: 6, page: 1 }))
   },
-]
+  component: HomePage,
+})
 
 // ── SKELETON ──
 function EventCardSkeleton() {
@@ -68,33 +50,73 @@ function EventCardSkeleton() {
     <Card withBorder radius="md" p={0} className="overflow-hidden shadow-sm">
       <Skeleton height={160} radius={0} />
       <Stack gap="sm" p="md">
-        <Skeleton height={18} width={70} radius="sm" />
-        <Skeleton height={16} width="80%" radius="sm" />
-        <Skeleton height={12} width="50%" radius="sm" />
-        <Skeleton height={12} width="60%" radius="sm" />
+        <Skeleton height={16} width={70} radius="sm" />
+        <Skeleton height={18} width="80%" radius="sm" />
+        <Group gap={6} mt={4}>
+          <Skeleton height={12} width={12} radius="xl" />
+          <Skeleton height={12} width="50%" radius="sm" />
+        </Group>
+        <Group gap={6}>
+          <Skeleton height={12} width={12} radius="xl" />
+          <Skeleton height={12} width="60%" radius="sm" />
+        </Group>
+        <Group gap={6}>
+          <Skeleton height={12} width={12} radius="xl" />
+          <Skeleton height={12} width="40%" radius="sm" />
+        </Group>
         <Group justify="space-between" mt="xs">
-          <Skeleton height={20} width={80} radius="sm" />
-          <Skeleton height={28} width={80} radius="sm" />
+          <Skeleton height={20} width={60} radius="sm" />
+          <Group gap="xs">
+            <Skeleton height={28} width={60} radius="md" />
+            <Skeleton height={28} width={70} radius="md" />
+          </Group>
         </Group>
       </Stack>
     </Card>
   )
 }
 
+function FeaturedSkeleton() {
+  return (
+    <Paper withBorder radius="lg" p={0} className="overflow-hidden shadow-sm">
+      <div className="flex flex-col sm:flex-row">
+        <Skeleton height={200} width={260} radius={0} className="shrink-0" />
+        <Stack gap="sm" p="lg" className="flex-1">
+          <Group gap="xs">
+            <Skeleton height={20} width={70} radius="sm" />
+            <Skeleton height={20} width={60} radius="sm" />
+          </Group>
+          <Skeleton height={22} width="70%" radius="sm" />
+          <Skeleton height={14} width="90%" radius="sm" />
+          <Skeleton height={14} width="75%" radius="sm" />
+          <Group gap={6} mt={4}>
+            <Skeleton height={12} width={12} radius="xl" />
+            <Skeleton height={12} width="40%" radius="sm" />
+          </Group>
+          <Group gap={6}>
+            <Skeleton height={12} width={12} radius="xl" />
+            <Skeleton height={12} width="30%" radius="sm" />
+          </Group>
+          <Group justify="space-between" mt="md">
+            <Skeleton height={24} width={80} radius="sm" />
+            <Group gap="xs">
+              <Skeleton height={32} width={90} radius="md" />
+              <Skeleton height={32} width={90} radius="md" />
+            </Group>
+          </Group>
+        </Stack>
+      </div>
+    </Paper>
+  )
+}
+
 // ── FEATURED BANNER ──
-function FeaturedEvents({ events }: { events: Event[] }) {
+function FeaturedEvents({ events }: { events: EventItem[] }) {
   const [index, setIndex] = useState(0)
   const ev = events[index]
-  const price = parseFloat(ev.price)
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' })
-
-  useEffect(() => {
-    if (events.length <= 1) return
-    const timer = setInterval(() => {
-      setIndex(i => (i + 1) % events.length)
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [events.length])
+  const price = typeof ev.price === 'number' ? ev.price : parseFloat(ev.price as any)
+  const formatDate = (d: string) =>
+    new Date(d).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' })
 
   return (
     <div>
@@ -154,10 +176,10 @@ function FeaturedEvents({ events }: { events: Event[] }) {
                     {formatDate(ev.startsAt)} — {formatDate(ev.endsAt)}
                   </span>
                 </Group>
-                {ev.locationId && (
+                {ev.location && (
                   <Group gap={6}>
                     <MapPin size={13} className="text-slate-400" />
-                    <span className="text-xs text-slate-500 dark:text-slate-400">{ev.locationId}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{ev.location.name}</span>
                   </Group>
                 )}
                 <Group gap={6}>
@@ -175,16 +197,9 @@ function FeaturedEvents({ events }: { events: Event[] }) {
               </p>
               <Group gap="xs">
                 <Link to="/events/$eventId" params={{ eventId: ev.id }}>
-                  <Button size="sm" radius="md" color="blue" variant="light">
-                    View details
-                  </Button>
+                  <Button size="sm" radius="md" color="blue" variant="light">View details</Button>
                 </Link>
-                <Button
-                  size="sm"
-                  radius="md"
-                  color="blue"
-                  disabled={ev.slotsRemaining === 0}
-                >
+                <Button size="sm" radius="md" color="blue" disabled={ev.slotsRemaining === 0}>
                   {ev.slotsRemaining === 0 ? 'Sold out' : 'Book now'}
                 </Button>
               </Group>
@@ -192,7 +207,6 @@ function FeaturedEvents({ events }: { events: Event[] }) {
           </div>
         </div>
 
-        {/* Dot indicators */}
         {events.length > 1 && (
           <Group justify="center" gap="xs" py="xs" className="border-t border-slate-100 dark:border-slate-800">
             {events.map((_, i) => (
@@ -212,11 +226,12 @@ function FeaturedEvents({ events }: { events: Event[] }) {
 }
 
 // ── EVENT CARD ──
-function EventCard({ event }: { event: Event }) {
+function EventCard({ event }: { event: EventItem }) {
   const isSoldOut = event.slotsRemaining === 0
   const isLowStock = event.slotsRemaining > 0 && event.slotsRemaining <= 10
-  const price = parseFloat(event.price)
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' })
+  const price = typeof event.price === 'number' ? event.price : parseFloat(event.price as any)
+  const formatDate = (d: string) =>
+    new Date(d).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' })
 
   return (
     <Card withBorder radius="md" p={0} className="flex flex-col overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
@@ -245,10 +260,11 @@ function EventCard({ event }: { event: Event }) {
             {event.title}
           </p>
           <Stack gap={4} mt={2}>
-            {event.locationId && (
+            {event.location && (
               <Group gap={6} wrap="nowrap">
                 <MapPin size={12} className="shrink-0 text-slate-400" />
-                <span className="truncate text-xs text-slate-500 dark:text-slate-400">{event.locationId}</span>
+                {/* ✅ use location.name instead of locationId */}
+                <span className="truncate text-xs text-slate-500 dark:text-slate-400">{event.location.name}</span>
               </Group>
             )}
             <Group gap={6} wrap="nowrap">
@@ -291,12 +307,20 @@ function HomePage() {
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null])
   const [activeCategory, setActiveCategory] = useState<Category>('all')
   const [page, setPage] = useState(1)
-  const loading = false
+  const PAGE_SIZE = 6
 
-  const filtered = MOCK_EVENTS.filter(e => {
+  const { data: eventsResponse, isLoading } = useSuspenseQuery(
+    GetEventsQueryOption({ page, limit: PAGE_SIZE })
+  )
+
+  const allEvents = eventsResponse?.data ?? []
+  const meta = eventsResponse?.meta
+
+  // client-side filter on top of server pagination
+  const filtered = allEvents.filter(e => {
     const matchesSearch =
       e.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      (e.locationId ?? '').toLowerCase().includes(debouncedSearch.toLowerCase())
+      (e.location?.name ?? '').toLowerCase().includes(debouncedSearch.toLowerCase())
 
     const matchesCategory = activeCategory === 'all' || e.category === activeCategory
 
@@ -311,9 +335,11 @@ function HomePage() {
     return matchesSearch && matchesCategory && matchesDate && e.status === 'published'
   })
 
-  const featuredEvents = MOCK_EVENTS.filter(e => e.isFeatured && e.status === 'published')
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  // first 5 featured events shown in their own row
+  const featuredEvents = allEvents
+    .filter(e => e.isFeatured && e.status === 'published')
+    .slice(0, 5)
+
   const hasFilters = debouncedSearch || dateRange[0] || dateRange[1] || activeCategory !== 'all'
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => { setSearch(e.target.value); setPage(1) }
@@ -371,15 +397,21 @@ function HomePage() {
         </Group>
       </Paper>
 
-      {/* ── FEATURED ── */}
-      {featuredEvents.length > 0 && !debouncedSearch && activeCategory === 'all' && (
-        <FeaturedEvents events={featuredEvents} />
+      {/* ── FEATURED ROW (first 5, own row, hidden when filters active) ── */}
+      {featuredEvents.length > 0 && !hasFilters && (
+        isLoading ? (
+          <Stack gap="md">
+            <FeaturedSkeleton />
+          </Stack>
+        ) : (
+          <FeaturedEvents events={featuredEvents} />
+        )
       )}
 
       {/* ── RESULTS BAR ── */}
       <Group justify="space-between" align="center">
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          {filtered.length} event{filtered.length !== 1 ? 's' : ''} found
+          {meta ? `${meta.total} event${meta.total !== 1 ? 's' : ''} found` : ''}
         </p>
         {hasFilters && (
           <button
@@ -392,28 +424,33 @@ function HomePage() {
       </Group>
 
       {/* ── GRID ── */}
-      {loading ? (
+      {isLoading ? (
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
           {Array.from({ length: PAGE_SIZE }).map((_, i) => <EventCardSkeleton key={i} />)}
         </SimpleGrid>
-      ) : paginated.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
           <p className="font-semibold text-slate-700 dark:text-slate-200">No events found</p>
           <p className="text-sm text-slate-500 dark:text-slate-400">Try adjusting your search or filters</p>
         </div>
       ) : (
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
-          {paginated.map(e => <EventCard key={e.id} event={e} />)}
+          {filtered.map(e => <EventCard key={e.id} event={e} />)}
         </SimpleGrid>
       )}
 
       {/* ── PAGINATION ── */}
-      {totalPages > 1 && (
+      {meta && meta.totalPages > 1 && (
         <Group justify="center" mt="lg">
-          <Pagination total={totalPages} value={page} onChange={setPage} radius="md" color="blue" />
+          <Pagination
+            total={meta.totalPages}
+            value={page}
+            onChange={setPage}
+            radius="md"
+            color="blue"
+          />
         </Group>
       )}
-
     </div>
   )
 }

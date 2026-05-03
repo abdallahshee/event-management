@@ -13,7 +13,7 @@ export const CreateNotificationMutationOption=()=>{
     return useMutation({
         mutationFn:async(data:CreateNotificationRequest)=>CreateNotificationFn({data}),
         onSuccess:async()=>queryClient
-        .invalidateQueries({queryKey:GetNotificationsQueryOption({paginator:{}}).queryKey})
+        .invalidateQueries({queryKey:GetNotificationsQueryOption({}).queryKey,exact:true})
     })
 }
 

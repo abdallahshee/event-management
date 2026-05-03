@@ -12,7 +12,7 @@ export const CreatePaymentMutationOption = () => {
     return useMutation({
         mutationFn: async (data: CreatePaymentRequest) => CreatePaymentFn({ data }),
         onSuccess: async () => await queryClient
-            .invalidateQueries({ queryKey: GetPaymentsQueryOption({ provider: "", paginator: {} }).queryKey,exact:true })
+            .invalidateQueries({ queryKey: GetPaymentsQueryOption({}).queryKey,exact:true })
     })
 }
 
