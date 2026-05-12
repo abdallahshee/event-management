@@ -73,11 +73,11 @@ export default function Footer() {
 
         <Divider my="lg" />
 
-        <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+        <div className="flex justify-center gap-3 sm:flex-row">
           <p className="text-xs text-slate-400">
             © {new Date().getFullYear()} Evenue. All rights reserved.
           </p>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-400 ">
             Built in Nairobi, Kenya 🇰🇪
           </p>
         </div>

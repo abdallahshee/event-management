@@ -6,7 +6,7 @@ import { nanoid } from 'nanoid'
 import { event } from "./event.schema";
 import { SupportedBookingStatus } from "../utils";
 
-export const booking = pgTable('booking', {
+export const ticket = pgTable('ticket', {
   id: text('id').primaryKey().notNull().$default(() => nanoid(16)),
   userId: uuid('user_id').notNull().references(() => profile.id),
   amount:numeric('price', { precision: 10, scale: 2,mode:"number" }).notNull(),
@@ -17,15 +17,15 @@ export const booking = pgTable('booking', {
 }
 , (table) => [
    unique('unique_user_event').on(table.eventId, table.userId),
-   index("user_bookings").on(table.userId)
+   index("user_tickets").on(table.userId)
 ]
 )
 
-export const bookingRelations = relations(booking, ({ one }) => ({
-  user: one(profile, { fields: [booking.userId], references: [profile.id] }),
+export const ticketRelations = relations(ticket, ({ one }) => ({
+  user: one(profile, { fields: [ticket.userId], references: [profile.id] }),
   event: one(event, {
-    fields: [booking.eventId],
+    fields: [ticket.eventId],
     references: [event.id]
   }),  // events are accessed through here
-  payment: one(payment, { fields: [booking.id], references: [payment.bookingId] }),
+  payment: one(payment, { fields: [ticket.id], references: [payment.ticketId] }),
 }))

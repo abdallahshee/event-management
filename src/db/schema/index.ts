@@ -1,4 +1,4 @@
-export * from './booking.schema'
+export * from './ticket.schema'
 export * from './event.schema'
 export * from './payment.schema'
 export * from './profile.schema'

@@ -1,10 +1,11 @@
 import { relations } from 'drizzle-orm'
 import { pgSchema, pgTable,  text, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { booking } from './booking.schema'
+import { ticket } from './ticket.schema'
 import { review } from './review.schema'
 import { notification } from './notification.schema'
 import { payment } from './payment.schema'
 import { SupportedUserRoles } from '../utils'
+import { event } from './event.schema'
 
 const authSchema = pgSchema('auth')
 const authUsers = authSchema.table('users', {
@@ -26,7 +27,9 @@ export const profile = pgTable('profile', {
 // ── Relations (for Drizzle query API) ────────────────────
 export const profileRelations = relations(profile, ({ many }) => ({
   payments:many(payment),
+    // events this user has CREATED (premium/admin only)
+  createdEvents: many(event),
   reviews: many(review),
-  bookings: many(booking),
+  tickets: many(ticket),
   notifications: many(notification),
 }))

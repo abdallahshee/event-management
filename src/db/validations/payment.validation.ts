@@ -16,7 +16,7 @@ import z from "zod"
 import { PaginatorSchema, SupportedCurrencies, SupportedProviders } from "../utils";
 
 export const CreatePaymentSchema = createInsertSchema(payment, {
-  bookingId: z.string().nonempty(),
+  ticketId: z.string().nonempty(),
   eventId: z.string().nonempty(),
   userId: z.string().nonempty(),
   amount: z.number().min(1, "Amount must be greater than 0"),
@@ -25,7 +25,7 @@ export const CreatePaymentSchema = createInsertSchema(payment, {
   referenceNumber: z.string().min(1, "Transaction ID is required"),
 })
   .pick({
-    bookingId: true,
+    ticketId: true,
     amount: true,
     eventId: true,
     currency: true,

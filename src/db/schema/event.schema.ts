@@ -1,4 +1,4 @@
-import { text, numeric, integer, timestamp, pgTable, boolean } from "drizzle-orm/pg-core";
+import { text, numeric, integer, timestamp, pgTable, boolean, uuid } from "drizzle-orm/pg-core";
 
 import { relations } from "drizzle-orm";
 
@@ -6,14 +6,16 @@ import { relations } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { review } from "./review.schema";
 import { location } from "./location.schema";
-import { booking } from "./booking.schema";
+import { ticket } from "./ticket.schema";
 import { payment } from "./payment.schema";
 import { SupportedEventCategories, SupportedEventStatus } from "../utils";
+import { profile } from "./profile.schema";
 
 
 export const event = pgTable('event', {
   id: text('id').primaryKey().$default(() => nanoid(16)),
   title: text('title').notNull(),
+  createdBy:uuid('created_by').notNull().references(() => profile.id), // back in
   description: text('description'),
   locationId: text('location_id').notNull().references(()=>location.id),
   coverImage: text('cover_image'),
@@ -31,11 +33,12 @@ export const event = pgTable('event', {
 )
 
 export const eventRelations = relations(event, ({one, many }) => ({
+  creator:one(profile, { fields: [event.createdBy], references: [profile.id] }),
   location:one(location,{
     fields:[event.locationId],
     references:[location.id]
   }),
   payments:many(payment),
   reviews: many(review),
-  bookings: many(booking), // events are booked through bookingItems
+  tickets: many(ticket),
 }))

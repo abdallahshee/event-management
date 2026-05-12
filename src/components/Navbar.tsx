@@ -193,7 +193,7 @@ export default function Navbar() {
             </>
           ) : (
             <Stack gap="xs" px="xs">
-              <Link to="/account/login" onClick={close}>
+              <Link to="/account" onClick={close}>
                 <Button fullWidth size="sm" variant="outline" color="blue" radius="md">Sign in</Button>
               </Link>
               <Link to="/account/signup" onClick={close}>

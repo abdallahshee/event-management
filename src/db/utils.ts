@@ -1,4 +1,5 @@
 import z from "zod"
+import type { Role } from "./validations/profile.validation"
 export const PaginatorSchema=z.object({
     page:z.number().optional(),
     limit:z.number().optional()
@@ -21,7 +22,27 @@ export const SupportedEventCategories=['music', 'tech', 'food', 'sports', 'arts'
 export const SupportedEventStatus=['draft', 'published', 'cancelled'] as const
 export const SupportedBookingStatus=['pending', 'confirmed', 'cancelled'] as const
 export const SupportedPaymentStatus=['pending', 'paid', 'refunded'] as const
-export const SupportedUserRoles=['admin', 'user'] as const
+export const SupportedUserRoles=['admin', 'user',"premium"] as const
+
+
+
+
+export type UserMetadata = {
+  role: Role
+  first_name: string
+  last_name: string
+  avatar_url?: string | null
+}
+
+// Extend Supabase's default types
+declare module '@supabase/supabase-js' {
+  interface UserMetadata {
+    role: Role
+    first_name: string
+    last_name: string
+    avatar_url?: string | null
+  }
+}
 
 
 

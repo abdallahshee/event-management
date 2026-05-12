@@ -1,5 +1,5 @@
 import { pgTable, numeric, text, timestamp, uuid, unique, index } from "drizzle-orm/pg-core";
-import { booking } from "./booking.schema";
+import { ticket } from "./ticket.schema";
 import { relations } from "drizzle-orm";
 import { profile } from "./profile.schema";
 import { event } from "./event.schema";
@@ -9,7 +9,7 @@ import { SupportedCurrencies, SupportedPaymentStatus, SupportedProviders } from 
 export const payment = pgTable('payment', {
   // id: text('id').primaryKey().$default(() => nanoid(16)),
   userId:uuid("user_id").notNull().references(()=>profile.id),
-  bookingId: text('booking_id').notNull().references(() => booking.id),
+  ticketId: text('ticket_id').notNull().references(() => ticket.id),
   eventId:text('event_id').notNull().references(()=>event.id),
   amount: numeric('amount', { precision: 10, scale: 2 ,mode:'number'}).notNull(),
   currency: text('currency',{ enum:SupportedCurrencies }).default('USD'),
@@ -31,5 +31,5 @@ export const paymentRelations = relations(payment, ({ one }) => ({
     fields:[payment.eventId],
     references:[event.id]
   }),
-  booking: one(booking, { fields: [payment.bookingId], references: [booking.id] }),
+  ticket: one(ticket, { fields: [payment.ticketId], references: [ticket.id] }),
 }))

@@ -19,7 +19,7 @@ import { Route as AccountIndexRouteImport } from './routes/account/index'
 import { Route as EventsMyEventsRouteImport } from './routes/events/my-events'
 import { Route as EventsEventIdRouteImport } from './routes/events/$eventId'
 import { Route as AccountSignupRouteImport } from './routes/account/signup'
-import { Route as AccountLoginRouteImport } from './routes/account/login'
+import { Route as AccountIndexdRouteImport } from './routes/account/indexd'
 import { Route as AccountForgotPasswordRouteImport } from './routes/account/forgot-password'
 import { Route as EventsEventIdEditRouteImport } from './routes/events/$eventId.edit'
 
@@ -73,9 +73,9 @@ const AccountSignupRoute = AccountSignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => AccountRouteRoute,
 } as any)
-const AccountLoginRoute = AccountLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const AccountIndexdRoute = AccountIndexdRouteImport.update({
+  id: '/indexd',
+  path: '/indexd',
   getParentRoute: () => AccountRouteRoute,
 } as any)
 const AccountForgotPasswordRoute = AccountForgotPasswordRouteImport.update({
@@ -95,7 +95,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteRouteWithChildren
   '/events': typeof EventsRouteRouteWithChildren
   '/account/forgot-password': typeof AccountForgotPasswordRoute
-  '/account/login': typeof AccountLoginRoute
+  '/account/indexd': typeof AccountIndexdRoute
   '/account/signup': typeof AccountSignupRoute
   '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/events/my-events': typeof EventsMyEventsRoute
@@ -107,7 +107,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account/forgot-password': typeof AccountForgotPasswordRoute
-  '/account/login': typeof AccountLoginRoute
+  '/account/indexd': typeof AccountIndexdRoute
   '/account/signup': typeof AccountSignupRoute
   '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/events/my-events': typeof EventsMyEventsRoute
@@ -123,7 +123,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteRouteWithChildren
   '/events': typeof EventsRouteRouteWithChildren
   '/account/forgot-password': typeof AccountForgotPasswordRoute
-  '/account/login': typeof AccountLoginRoute
+  '/account/indexd': typeof AccountIndexdRoute
   '/account/signup': typeof AccountSignupRoute
   '/events/$eventId': typeof EventsEventIdRouteWithChildren
   '/events/my-events': typeof EventsMyEventsRoute
@@ -140,7 +140,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/events'
     | '/account/forgot-password'
-    | '/account/login'
+    | '/account/indexd'
     | '/account/signup'
     | '/events/$eventId'
     | '/events/my-events'
@@ -152,7 +152,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/account/forgot-password'
-    | '/account/login'
+    | '/account/indexd'
     | '/account/signup'
     | '/events/$eventId'
     | '/events/my-events'
@@ -167,7 +167,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/events'
     | '/account/forgot-password'
-    | '/account/login'
+    | '/account/indexd'
     | '/account/signup'
     | '/events/$eventId'
     | '/events/my-events'
@@ -256,11 +256,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountSignupRouteImport
       parentRoute: typeof AccountRouteRoute
     }
-    '/account/login': {
-      id: '/account/login'
-      path: '/login'
-      fullPath: '/account/login'
-      preLoaderRoute: typeof AccountLoginRouteImport
+    '/account/indexd': {
+      id: '/account/indexd'
+      path: '/indexd'
+      fullPath: '/account/indexd'
+      preLoaderRoute: typeof AccountIndexdRouteImport
       parentRoute: typeof AccountRouteRoute
     }
     '/account/forgot-password': {
@@ -282,14 +282,14 @@ declare module '@tanstack/react-router' {
 
 interface AccountRouteRouteChildren {
   AccountForgotPasswordRoute: typeof AccountForgotPasswordRoute
-  AccountLoginRoute: typeof AccountLoginRoute
+  AccountIndexdRoute: typeof AccountIndexdRoute
   AccountSignupRoute: typeof AccountSignupRoute
   AccountIndexRoute: typeof AccountIndexRoute
 }
 
 const AccountRouteRouteChildren: AccountRouteRouteChildren = {
   AccountForgotPasswordRoute: AccountForgotPasswordRoute,
-  AccountLoginRoute: AccountLoginRoute,
+  AccountIndexdRoute: AccountIndexdRoute,
   AccountSignupRoute: AccountSignupRoute,
   AccountIndexRoute: AccountIndexRoute,
 }

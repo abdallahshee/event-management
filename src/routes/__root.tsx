@@ -12,7 +12,7 @@ import { theme } from '#/components/ThemeToggler'
 import { getCurrentUserAndRoleQueryOption } from '#/db/queries/profile.queries'
 import { AdminLayout } from '#/components/Layouts/AdminLayout'
 import { UserLayout } from '#/components/Layouts/UserLayout'
-import { GuestLayout } from '#/components/Layouts/GuestLayout'
+
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -37,7 +37,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     )
     return {
       user: result?.user ?? null,
-      isAdmin: result?.isAdmin ?? false,
+      role: result?.role?? false,
     }
   },
   shellComponent: RootDocument,
@@ -61,9 +61,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  const { user, isAdmin } = Route.useRouteContext()
+  const { user, role } = Route.useRouteContext()
 
-  if (user && isAdmin) return <AdminLayout />
-  if (user) return <UserLayout />
-  return <GuestLayout />
+  if (user && role==="admin") {
+    return <AdminLayout />
+  }
+  return <UserLayout />
+
 }

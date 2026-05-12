@@ -38,11 +38,12 @@ const CATEGORY_COLORS: Record<string, string> = {
 // ── MOCK (replace with real query using eventId) ──
 const MOCK_EVENT: Event = {
   id: 'abc123',
+  createdBy:"utrref",
   title: 'Nairobi Tech Summit 2025',
   description: `Join us for the biggest tech conference in East Africa. The Nairobi Tech Summit brings together innovators, engineers, founders, and investors from across the continent for two days of talks, workshops, and networking.\n\nExpect keynotes from industry leaders, hands-on sessions covering AI, cloud infrastructure, fintech, and mobile-first development, plus dedicated time to connect with fellow builders shaping Africa's tech future.\n\nWhether you're a seasoned engineer or just starting out, this summit is designed to inspire, educate, and connect.`,
   category: 'tech',
   locationId: 'Kenyatta International Convention Centre, Nairobi',
-  price: '2500',
+  price: 2500,
   capacity: 500,
   slotsRemaining: 120,
   startsAt: new Date(2026, 7, 15, 9, 0).toISOString(),
@@ -88,7 +89,7 @@ function EventDetailPage() {
     </div>
   )
 
-  const price = parseFloat(ev.price)
+  // const price = ev.price
   const isSoldOut = ev.slotsRemaining === 0
   const isLowStock = ev.slotsRemaining > 0 && ev.slotsRemaining <= 20
   const isCancelled = ev.status === 'cancelled'
@@ -142,23 +143,23 @@ function EventDetailPage() {
           {isLowStock && <Badge variant="filled" color="orange" size="md" radius="sm">{ev.slotsRemaining} slots left</Badge>}
         </div>
       </div>
-    <div className='text-center'>
-            <p className="text-2xl font-bold leading-snug text-slate-900 sm:text-3xl dark:text-slate-50">
-              {ev.title}
-            </p>
-            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-              Listed on {formatDate(ev.createdAt)}
-            </p>
-          </div>
+      <div className='text-center'>
+        <p className="text-2xl font-bold leading-snug text-slate-900 sm:text-3xl dark:text-slate-50">
+          {ev.title}
+        </p>
+        <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+          Listed on {formatDate(ev.createdAt)}
+        </p>
+      </div>
       {/* ── MAIN CONTENT ── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
         {/* LEFT — details */}
-        
+
         <div className="space-y-6 lg:col-span-2">
 
           {/* Title */}
-      
+
 
           {/* Quick meta */}
           <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
@@ -229,9 +230,8 @@ function EventDetailPage() {
             </Group>
             <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
               <div
-                className={`h-full rounded-full transition-all ${
-                  slotsPercent >= 90 ? 'bg-red-500' : slotsPercent >= 70 ? 'bg-orange-400' : 'bg-blue-500'
-                }`}
+                className={`h-full rounded-full transition-all ${slotsPercent >= 90 ? 'bg-red-500' : slotsPercent >= 70 ? 'bg-orange-400' : 'bg-blue-500'
+                  }`}
                 style={{ width: `${slotsPercent}%` }}
               />
             </div>
@@ -265,7 +265,7 @@ function EventDetailPage() {
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Price per ticket</p>
                 <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
-                  {price === 0 ? 'Free' : `KES ${price.toLocaleString()}`}
+                  {ev.price === 0 ? 'Free' : `KES ${ev.price.toLocaleString()}`}
                 </p>
               </div>
 

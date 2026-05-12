@@ -1,7 +1,7 @@
 import { db } from "#/db";
-import { booking } from "#/db/schema";
+import { ticket } from "#/db/schema/ticket.schema";
 import { PaginatorSchema } from "#/db/utils";
-import { CreateBookingSchema, GetUserBookingsSchema } from "#/db/validations/booking.validation";
+import { CreateTicketSchema, GetUserTicketsSchema } from "#/db/validations/ticket.validation";
 import { createServerFn } from "@tanstack/react-start";
 import { asc, eq } from "drizzle-orm";
 // CreateBookingFn,
@@ -10,13 +10,13 @@ import { asc, eq } from "drizzle-orm";
 // GetUserBookingsFn,
 
 // Creating a User Boking
-export const CreateBookingFn = createServerFn({ method: 'POST' })
+export const CreateTicketFn = createServerFn({ method: 'POST' })
     .middleware([])
-    .inputValidator(CreateBookingSchema)
+    .inputValidator(CreateTicketSchema)
     .handler(async ({ data }) => {
         try {
-            const [theBooking] = await db.insert(booking).values({ ...data }).returning()
-            return theBooking
+            const [theTickets] = await db.insert(ticket).values({ ...data }).returning()
+            return theTickets
         } catch (err) {
             console.log('Error from CreateBookingFn ', err)
             throw err
@@ -24,7 +24,7 @@ export const CreateBookingFn = createServerFn({ method: 'POST' })
     })
 
 // Get Bookings
-export const GetBookingsFn = createServerFn({ method: 'POST' })
+export const GetTicketsFn = createServerFn({ method: 'POST' })
     .middleware([])
     .inputValidator(PaginatorSchema)
     .handler(async ({ data }) => {
@@ -33,13 +33,13 @@ export const GetBookingsFn = createServerFn({ method: 'POST' })
             const limit = data.limit ?? 10
             const offset = (page - 1) * limit
 
-            const [theBookings, total] = await Promise.all([
-                db.query.booking
-                .findMany({with:{event:true, user:true}, limit, offset,orderBy: asc(booking.createdAt) }),
-                db.$count(booking)
+            const [theTickets, total] = await Promise.all([
+                db.query.ticket
+                .findMany({with:{event:true, user:true}, limit, offset,orderBy: asc(ticket.createdAt) }),
+                db.$count(ticket)
             ])
             return {
-                data: theBookings,
+                data: theTickets,
                 meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
             }
         } catch (err) {
@@ -49,12 +49,12 @@ export const GetBookingsFn = createServerFn({ method: 'POST' })
     })
 
 // Get the Booking By Id
-export const GetBookingByIdFn = createServerFn({ method: 'POST' })
+export const GetTicketByIdFn = createServerFn({ method: 'POST' })
     .middleware([])
     .inputValidator((data: { bookingId: string }) => data)
     .handler(async ({ data }) => {
         try {
-            const theBooking = await db.query.booking.
+            const theTicket = await db.query.ticket.
             findFirst({with:{event:{
                 columns:{
                     title:true,
@@ -73,8 +73,8 @@ export const GetBookingByIdFn = createServerFn({ method: 'POST' })
 
                 }
             }},
-                 where: eq(booking.id, data.bookingId) })
-            return theBooking
+                 where: eq(ticket.id, data.bookingId) })
+            return theTicket
         } catch (err) {
             console.log('Error from GetBookingsByIdFn ', err)
             throw err
@@ -82,27 +82,27 @@ export const GetBookingByIdFn = createServerFn({ method: 'POST' })
     })
 
 // Getting the Bookings for a User
-export const GetUserBookingsFn = createServerFn({ method: 'GET' })
+export const GetUserTicketsFn = createServerFn({ method: 'GET' })
     .middleware([])
-    .inputValidator(GetUserBookingsSchema)
+    .inputValidator(GetUserTicketsSchema)
     .handler(async ({ data }) => {
         try {
             const page = data.page ?? 1
             const limit = data.limit ?? 10
             const offset = (page - 1) * limit
 
-            const [theBookings, total] = await Promise.all([
-                db.query.booking.findMany({
+            const [theTickets, total] = await Promise.all([
+                db.query.ticket.findMany({
                     with:{event:true},
-                    where: eq(booking.userId, data.userId),
+                    where: eq(ticket.userId, data.userId),
                     limit,
                     offset,
-                    orderBy: asc(booking.createdAt) 
+                    orderBy: asc(ticket.createdAt) 
                 }),
-                db.$count(booking, eq(booking.userId, data.userId))
+                db.$count(ticket, eq(ticket.userId, data.userId))
             ])
             return {
-                data: theBookings,
+                data: theTickets,
                 meta: { page, limit,  total, totalPages: Math.ceil(total / limit) }
             }
         } catch (err) {

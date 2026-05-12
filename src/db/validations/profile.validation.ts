@@ -11,6 +11,7 @@
 import { createInsertSchema } from "drizzle-zod";
 import { profile } from "../schema";
 import z from "zod";
+import type { InferSelectModel } from "drizzle-orm";
 
 export const SignUpSchema = createInsertSchema(profile, {
   firstName: z.string().min(2, "First name must be at least 2 characters").max(50, "First name too long"),
@@ -50,3 +51,5 @@ export const UpdateProfileSchema = createInsertSchema(profile, {
     avatarUrl: true,
   })
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileSchema>
+
+export type Role = InferSelectModel<typeof profile>["role"]

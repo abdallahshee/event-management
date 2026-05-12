@@ -8,11 +8,11 @@
 // })
 
 import { createInsertSchema } from "drizzle-zod";
-import { booking } from "../schema";
 import z from "zod"
 import { PaginatorSchema } from "../utils";
+import { ticket } from "../schema/ticket.schema";
 
-export const CreateBookingSchema = createInsertSchema(booking, {
+export const CreateTicketSchema = createInsertSchema(ticket, {
   eventId: z.string().nonempty(),
   userId: z.string().nonempty(),
   amount: z.number().min(1)
@@ -22,13 +22,13 @@ export const CreateBookingSchema = createInsertSchema(booking, {
     userId: true,
     amount: true
   })
-export type CreateBookingRequest = z.infer<typeof CreateBookingSchema>
+export type CreateTicketRequest = z.infer<typeof CreateTicketSchema>
 
 
-export const GetUserBookingsSchema = CreateBookingSchema.omit({ amount: true, eventId: true })
+export const GetUserTicketsSchema = CreateTicketSchema.omit({ amount: true, eventId: true })
 .extend(PaginatorSchema.shape)
 
-export type GetUserBookingsRequest = z.infer<typeof GetUserBookingsSchema>
+export type GetUserTicketsRequest = z.infer<typeof GetUserTicketsSchema>
 
 
 
