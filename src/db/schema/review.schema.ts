@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, integer, unique } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, integer, unique, index } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { profile } from "./profile.schema";
 import { event } from "./event.schema";
@@ -14,7 +14,8 @@ export const review = pgTable('review', {
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().$onUpdate(() => new Date()),
 }, 
 (table)=>[
-    unique('unique_user_review').on(table.userId, table.eventId)
+    unique('unique_user_review').on(table.userId, table.eventId),
+    index('unique_review').on(table.eventId)
 ]
 )
 

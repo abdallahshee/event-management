@@ -28,6 +28,104 @@ type EventItem = {
   locationId: string | null
   location: { name: string } | null
 }
+const MOCK_EVENTS: EventItem[] = [
+  {
+    id: '1',
+    title: 'Nairobi Tech Summit 2026',
+    description: 'A gathering of the brightest minds in tech across East Africa. Talks, workshops and networking.',
+    coverImage: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+    category: 'tech',
+    price: 2500,
+    capacity: 500,
+    slotsRemaining: 120,
+    startsAt: '2026-07-10T09:00:00.000Z',
+    endsAt: '2026-07-11T17:00:00.000Z',
+    status: 'published',
+    isFeatured: true,
+    locationId: 'loc-1',
+    location: { name: 'KICC, Nairobi' },
+  },
+  {
+    id: '2',
+    title: 'Blankets & Wine Nairobi',
+    description: 'An iconic outdoor music experience featuring local and international artists under the sun.',
+    coverImage: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800',
+    category: 'music',
+    price: 3500,
+    capacity: 2000,
+    slotsRemaining: 8,
+    startsAt: '2026-07-19T13:00:00.000Z',
+    endsAt: '2026-07-19T22:00:00.000Z',
+    status: 'published',
+    isFeatured: true,
+    locationId: 'loc-2',
+    location: { name: 'Ngong Racecourse, Nairobi' },
+  },
+  {
+    id: '3',
+    title: 'Nairobi Food Festival',
+    description: 'Celebrate the best of Kenyan and international cuisine with top chefs, tastings and live cooking demos.',
+    coverImage: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800',
+    category: 'food',
+    price: 1500,
+    capacity: 800,
+    slotsRemaining: 340,
+    startsAt: '2026-08-02T10:00:00.000Z',
+    endsAt: '2026-08-03T20:00:00.000Z',
+    status: 'published',
+    isFeatured: false,
+    locationId: 'loc-3',
+    location: { name: 'The Hub Karen, Nairobi' },
+  },
+  {
+    id: '4',
+    title: 'Startup Pitch Night',
+    description: 'Watch 10 early-stage startups pitch to a panel of top investors. Network with founders and VCs.',
+    coverImage: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800',
+    category: 'business',
+    price: 0,
+    capacity: 150,
+    slotsRemaining: 0,
+    startsAt: '2026-07-24T18:00:00.000Z',
+    endsAt: '2026-07-24T21:00:00.000Z',
+    status: 'published',
+    isFeatured: false,
+    locationId: 'loc-4',
+    location: { name: 'iHub, Nairobi' },
+  },
+  {
+    id: '5',
+    title: 'Safari 7s Rugby Tournament',
+    description: 'Kenya\'s premier sevens rugby tournament featuring clubs from across the country.',
+    coverImage: 'https://images.unsplash.com/photo-1508098682722-e99c643e7f0b?w=800',
+    category: 'sports',
+    price: 500,
+    capacity: 5000,
+    slotsRemaining: 2300,
+    startsAt: '2026-08-15T08:00:00.000Z',
+    endsAt: '2026-08-16T18:00:00.000Z',
+    status: 'published',
+    isFeatured: true,
+    locationId: 'loc-5',
+    location: { name: 'RFUEA Ground, Nairobi' },
+  },
+  {
+    id: '6',
+    title: 'East Africa Art Fair',
+    description: 'A curated showcase of contemporary art from emerging and established East African artists.',
+    coverImage: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800',
+    category: 'arts',
+    price: 1000,
+    capacity: 300,
+    slotsRemaining: 95,
+    startsAt: '2026-09-05T10:00:00.000Z',
+    endsAt: '2026-09-07T19:00:00.000Z',
+    status: 'published',
+    isFeatured: false,
+    locationId: 'loc-6',
+    location: { name: 'Nairobi National Museum' },
+  },
+]
 
 type Category = 'all' | 'music' | 'tech' | 'food' | 'sports' | 'arts' | 'business'
 
@@ -38,9 +136,9 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 export const Route = createFileRoute('/')({
-  loader: async ({ context }) => {
-    await context.queryClient.prefetchQuery(GetEventsQueryOption({ limit: 6, page: 1 }))
-  },
+  // loader: async ({ context }) => {
+  //   await context.queryClient.prefetchQuery(GetEventsQueryOption({ limit: 6, page: 1 }))
+  // },
   component: HomePage,
 })
 
@@ -309,9 +407,11 @@ function HomePage() {
   const [page, setPage] = useState(1)
   const PAGE_SIZE = 6
 
-  const { data: eventsResponse, isLoading } = useSuspenseQuery(
-    GetEventsQueryOption({ page, limit: PAGE_SIZE })
-  )
+const isLoading = false
+const eventsResponse = {
+  data: MOCK_EVENTS,
+  meta: { total: MOCK_EVENTS.length, totalPages: 1, page: 1, limit: 6 }
+}
 
   const allEvents = eventsResponse?.data ?? []
   const meta = eventsResponse?.meta

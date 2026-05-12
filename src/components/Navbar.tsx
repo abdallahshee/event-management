@@ -11,6 +11,7 @@ import {
 import { getSupabaseBrowserClient } from '#/db/supabase/browserClient'
 import { useState, useEffect } from 'react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
+import { ThemeToggler } from './ThemeToggler'
 
 const NAV_LINKS = [
   { to: '/', label: 'Home', icon: <Home size={15} /> },
@@ -53,8 +54,8 @@ export default function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/80">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
-
+        <div className="mx-auto flex h-14 w-full items-center justify-between px-4 sm:px-6">
+  <ThemeToggler />
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 no-underline">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
@@ -65,34 +66,40 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <Group gap={2} className="hidden sm:flex">
-            {visibleLinks.map(link => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium no-underline transition-colors ${
-                  isActive(link.to)
-                    ? 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-50'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </Group>
+          {/* Desktop nav — only visible at md and above */}
+    {/* Desktop nav — wrapped in div so Tailwind hidden works reliably */}
+<div className="hidden md:flex">
+  <Group gap={2}>
+    {visibleLinks.map(link => (
+      <Link
+        key={link.to}
+        to={link.to}
+        className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium no-underline transition-colors ${
+          isActive(link.to)
+            ? 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-50'
+        }`}
+      >
+        {link.label}
+      </Link>
+    ))}
+  </Group>
+</div>
 
-          {/* Auth */}
+          {/* Right side — auth + burger */}
           <Group gap="sm">
+
+            {/* Authenticated user menu — always visible when logged in */}
             {user ? (
               <Menu shadow="md" width={210} radius="md" position="bottom-end">
                 <Menu.Target>
                   <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition hover:bg-slate-100 dark:hover:bg-slate-800">
                     <Avatar color="blue" radius="md" size={32}>{initials}</Avatar>
-                    <span className="hidden text-sm font-medium text-slate-700 sm:block dark:text-slate-300">
+                    {/* Name only visible on desktop */}
+                    <span className="hidden text-sm font-medium text-slate-700 md:block dark:text-slate-300">
                       {user.user_metadata?.first_name ?? user.email?.split('@')[0]}
                     </span>
-                    <ChevronDown size={14} className="text-slate-400" />
+                    <ChevronDown size={14} className="text-slate-400 hidden md:block" />
                   </button>
                 </Menu.Target>
                 <Menu.Dropdown>
@@ -112,7 +119,8 @@ export default function Navbar() {
                 </Menu.Dropdown>
               </Menu>
             ) : (
-              <Group gap="xs" className="hidden sm:flex">
+              /* Desktop auth buttons — only visible at md and above */
+              <Group gap="xs" className="hidden md:flex">
                 <Link to="/account">
                   <Button size="xs" variant="subtle" color="blue" radius="md">Sign in</Button>
                 </Link>
@@ -122,7 +130,8 @@ export default function Navbar() {
               </Group>
             )}
 
-            <Burger opened={opened} onClick={toggle} size="sm" className="sm:hidden" />
+            {/* Burger — only visible below md */}
+            <Burger opened={opened} onClick={toggle} size="sm" className="md:hidden" />
           </Group>
 
         </div>

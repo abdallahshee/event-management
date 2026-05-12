@@ -18,8 +18,8 @@ const FOOTER_LINKS = {
 
 export default function Footer() {
   return (
-    <footer className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+    <footer className="border-t w-full  border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+      <div className="mx-auto  px-4 py-10 sm:px-6">
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
 

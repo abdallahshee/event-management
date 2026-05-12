@@ -8,6 +8,7 @@ import { createSelectSchema } from "drizzle-zod";
 import { location } from "../schema";
 import z from "zod"
 
+
 const coordinateSchema = z.object({
     x: z.number().min(-180, "Longitude must be between -180 and 180")
         .max(180, "Longitude must be between -180 and 180"),

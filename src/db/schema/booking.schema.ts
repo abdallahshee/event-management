@@ -17,7 +17,7 @@ export const booking = pgTable('booking', {
 }
 , (table) => [
    unique('unique_user_event').on(table.eventId, table.userId),
-   index("user_event").on(table.userId, table.eventId)
+   index("user_bookings").on(table.userId)
 ]
 )
 

@@ -1,6 +1,8 @@
 
 @import "tailwindcss";
 
+/* Sync dark mode with Mantine's attribute */
+@custom-variant dark (&:where([data-mantine-color-scheme="dark"], [data-mantine-color-scheme="dark"] *));
 * {
   box-sizing: border-box;
 }
