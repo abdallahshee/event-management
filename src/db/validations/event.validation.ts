@@ -42,7 +42,7 @@ export type CreateEventRequest = z.infer<typeof CreateEventSchema>
 
 
 export const UpdateEventSchema = CreateEventSchema.extend({
-  eventId: z.string().min(1)
+  slug: z.string().min(1)
 })
 export type UpdateEventRequest = z.infer<typeof UpdateEventSchema>
 

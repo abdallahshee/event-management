@@ -6,6 +6,7 @@ import { notification } from './notification.schema'
 import { payment } from './payment.schema'
 import { SupportedUserRoles } from '../utils'
 import { event } from './event.schema'
+import { waitlist } from './waitlist.schema'
 
 const authSchema = pgSchema('auth')
 const authUsers = authSchema.table('users', {
@@ -32,4 +33,5 @@ export const profileRelations = relations(profile, ({ many }) => ({
   reviews: many(review),
   tickets: many(ticket),
   notifications: many(notification),
+  waitlist:many(waitlist), // ← added
 }))

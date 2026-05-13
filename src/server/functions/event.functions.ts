@@ -1,9 +1,10 @@
 import { db } from "#/db";
 import { event, location } from "#/db/schema";
-import { PaginatorSchema } from "#/db/utils";
+import { generateSlug, PaginatorSchema } from "#/db/utils";
 import { CreateEventSchema, UpdateEventSchema } from "#/db/validations/event.validation";
 import { createServerFn } from "@tanstack/react-start";
 import { asc, eq } from "drizzle-orm";
+import { authMiddleware } from "../middleware";
 
 // CreateEventFn
 // GetEventsFn
@@ -11,11 +12,12 @@ import { asc, eq } from "drizzle-orm";
 
 // Create an Event
 export const CreateEventFn = createServerFn({ method: 'POST' })
-    .middleware([])
+    .middleware([authMiddleware])
     .inputValidator(CreateEventSchema)
-    .handler(async ({ data }) => {
+    .handler(async ({ data,context}) => {
         try {
             let theId;
+            const slug=generateSlug(data.title)
             if (!data.locationId) {
                 // create the location if the location is not set, 
                 // ie the admin selected the existing location
@@ -26,7 +28,7 @@ export const CreateEventFn = createServerFn({ method: 'POST' })
                 theId = data.locationId
             }
             const [theEvents] = await db.insert(event)
-                .values({ ...data, locationId: theId, slotsRemaining: data.capacity }).returning()
+                .values({ ...data, locationId: theId,slug, slotsRemaining: data.capacity,createdBy:context.user?.id!}).returning()
             return theEvents
         } catch (err) {
             console.log('Error from CreateEventFn ', err)
@@ -64,12 +66,12 @@ export const GetEventsFn = createServerFn({ method: 'GET' })
     })
 
 // Getting one Event By ID
-export const GetEventByIdFn = createServerFn({ method: 'GET' })
-    .inputValidator((data: { eventId: string }) => data)
+export const GetEventBySlugFn = createServerFn({ method: 'GET' })
+    .inputValidator((data: { slug: string }) => data)
     .handler(async ({ data }) => {
         try {
             const theEvent = await db.query.event
-            .findFirst({ with: { location: true }, where: eq(event.id, data.eventId) })
+            .findFirst({ with: { location: true }, where: eq(event.slug, data.slug) })
             return theEvent
         } catch (err) {
             console.log('Error from GetEventByIdFn ', err)
@@ -83,9 +85,9 @@ export const UpdateEventFn = createServerFn({ method: 'POST' })
     .handler(async ({ data }) => {
         try {
             const [theEvent] = await db.update(event).set({ ...data })
-                .where(eq(event.id, data.eventId)).returning({ eventId: event.id })
+                .where(eq(event.id, data.slug)).returning({ slug: event.slug })
             const tEvent = await db.query.event
-            .findFirst({ with: { location: true }, where: eq(event.id, theEvent.eventId) })
+            .findFirst({ with: { location: true }, where: eq(event.slug, theEvent.slug) })
             return tEvent
         } catch (err) {
             console.log('Error from UpdateEventFn ', err)

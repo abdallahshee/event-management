@@ -10,6 +10,7 @@ import { ticket } from "./ticket.schema";
 import { payment } from "./payment.schema";
 import { SupportedEventCategories, SupportedEventStatus } from "../utils";
 import { profile } from "./profile.schema";
+import { waitlist } from "./waitlist.schema";
 
 
 export const event = pgTable('event', {
@@ -22,6 +23,7 @@ export const event = pgTable('event', {
   isFeatured: boolean('is_featured').default(false).notNull(),
   price: numeric('price', { precision: 10, scale: 2,mode:"number" }).notNull(),
   capacity: integer('capacity').notNull(),
+  slug: text('slug').notNull().unique(),
   slotsRemaining: integer('slots_remaining').notNull(),
   startsAt: timestamp('starts_at', { withTimezone: true,mode:"string" }).notNull(),
   endsAt: timestamp('ends_at', { withTimezone: true,mode:"string" }).notNull(),
@@ -41,4 +43,5 @@ export const eventRelations = relations(event, ({one, many }) => ({
   payments:many(payment),
   reviews: many(review),
   tickets: many(ticket),
+  waitlist: many(waitlist),
 }))

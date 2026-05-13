@@ -15,6 +15,7 @@ import { GetEventsQueryOption } from '#/db/queries/event.queries'
 type EventItem = {
   id: string
   title: string
+  slug:string,
   description: string | null
   coverImage: string | null
   category: string | null
@@ -32,6 +33,7 @@ const MOCK_EVENTS: EventItem[] = [
   {
     id: '1',
     title: 'Nairobi Tech Summit 2026',
+    slug:" str fgyuhuih",
     description: 'A gathering of the brightest minds in tech across East Africa. Talks, workshops and networking.',
     coverImage: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
     category: 'tech',
@@ -48,6 +50,7 @@ const MOCK_EVENTS: EventItem[] = [
   {
     id: '2',
     title: 'Blankets & Wine Nairobi',
+     slug:" str fgyuhuihhninfyu",
     description: 'An iconic outdoor music experience featuring local and international artists under the sun.',
     coverImage: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800',
     category: 'music',
@@ -64,6 +67,7 @@ const MOCK_EVENTS: EventItem[] = [
   {
     id: '3',
     title: 'Nairobi Food Festival',
+     slug:" str fgyuhuihererf",
     description: 'Celebrate the best of Kenyan and international cuisine with top chefs, tastings and live cooking demos.',
     coverImage: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800',
     category: 'food',
@@ -80,6 +84,7 @@ const MOCK_EVENTS: EventItem[] = [
   {
     id: '4',
     title: 'Startup Pitch Night',
+     slug:" str fgyuhuihwerdytg",
     description: 'Watch 10 early-stage startups pitch to a panel of top investors. Network with founders and VCs.',
     coverImage: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800',
     category: 'business',
@@ -96,6 +101,7 @@ const MOCK_EVENTS: EventItem[] = [
   {
     id: '5',
     title: 'Safari 7s Rugby Tournament',
+     slug:" str fgyuhuihytdyrdtu",
     description: 'Kenya\'s premier sevens rugby tournament featuring clubs from across the country.',
     coverImage: 'https://images.unsplash.com/photo-1508098682722-e99c643e7f0b?w=800',
     category: 'sports',
@@ -112,6 +118,7 @@ const MOCK_EVENTS: EventItem[] = [
   {
     id: '6',
     title: 'East Africa Art Fair',
+     slug:" str fgyuhuihe str dyui",
     description: 'A curated showcase of contemporary art from emerging and established East African artists.',
     coverImage: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800',
     category: 'arts',
@@ -294,7 +301,7 @@ function FeaturedEvents({ events }: { events: EventItem[] }) {
                 {price === 0 ? 'Free' : `KES ${price.toLocaleString()}`}
               </p>
               <Group gap="xs">
-                <Link to="/events/$eventId" params={{ eventId: ev.id }}>
+                <Link to="/events/$slug" params={{ slug: ev.slug }}>
                   <Button size="sm" radius="md" color="blue" variant="light">View details</Button>
                 </Link>
                 <Button size="sm" radius="md" color="blue" disabled={ev.slotsRemaining === 0}>
@@ -333,7 +340,7 @@ function EventCard({ event }: { event: EventItem }) {
 
   return (
     <Card withBorder radius="md" p={0} className="flex flex-col overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-      <Link to="/events/$eventId" params={{ eventId: event.id }} className="contents">
+      <Link to="/events/$slug" params={{ slug: event.slug }} className="contents">
         <div className="relative h-40 w-full shrink-0 bg-slate-100 dark:bg-slate-800">
           {event.coverImage ? (
             <img src={event.coverImage} alt={event.title} className="h-full w-full object-cover" />
@@ -386,7 +393,7 @@ function EventCard({ event }: { event: EventItem }) {
           {price === 0 ? 'Free' : `KES ${price.toLocaleString()}`}
         </p>
         <Group gap="xs">
-          <Link to="/events/$eventId" params={{ eventId: event.id }}>
+          <Link to="/events/$slug" params={{ slug: event.slug }}>
             <Button size="xs" radius="md" color="blue" variant="light">Details</Button>
           </Link>
           <Button size="xs" radius="md" color="blue" variant={isSoldOut ? 'outline' : 'filled'} disabled={isSoldOut}>

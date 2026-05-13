@@ -1,5 +1,8 @@
 import z from "zod"
 import type { Role } from "./validations/profile.validation"
+import slugify from 'slugify'
+import { nanoid } from "nanoid"
+
 export const PaginatorSchema=z.object({
     page:z.number().optional(),
     limit:z.number().optional()
@@ -44,5 +47,12 @@ declare module '@supabase/supabase-js' {
   }
 }
 
+
+
+export function generateSlug(title: string): string {
+  const base = slugify(title, { lower: true, strict: true })
+  const uid  = nanoid(5)
+  return `${base}-${uid}` // "nairobi-tech-summit-2026-abc123"
+}
 
 

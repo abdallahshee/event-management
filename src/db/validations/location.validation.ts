@@ -18,10 +18,12 @@ const coordinateSchema = z.object({
 
 export const CreateLocationSchema = createSelectSchema(location, {
     name: z.string().min(50, "Please Provide a name fo this Location"),
+    city:z.string().min(1),
     coordinates: coordinateSchema
 }).pick({
     name:true,
-    coordinates:true
+    coordinates:true,
+    city:true
 })
 export type CreateLocationRequest = z.infer<typeof CreateLocationSchema>
 

@@ -4,7 +4,7 @@
 
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query"
 import type { CreateEventRequest, UpdateEventRequest } from "../validations/event.validation"
-import { CreateEventFn, GetEventByIdFn, GetEventsFn, UpdateEventFn } from "#/server/functions/event.functions"
+import { CreateEventFn, GetEventBySlugFn, GetEventsFn, UpdateEventFn } from "#/server/functions/event.functions"
 import type { PaginatorRequest } from "../utils"
 
 export const CreateEventMutationOption = () => {
@@ -22,9 +22,9 @@ export const GetEventsQueryOption = (data: PaginatorRequest) => queryOptions({
 })
 
 
-export const GetEventByIdQueryOption = (data: { eventId: string }) => queryOptions({
+export const GetEventByIdQueryOption = (data: { slug: string }) => queryOptions({
     queryKey: ['events', data],
-    queryFn: async () => GetEventByIdFn({ data })
+    queryFn: async () => GetEventBySlugFn({ data })
 })
 
 export const UpdateEventQueryOption = () => {
@@ -32,7 +32,7 @@ export const UpdateEventQueryOption = () => {
     return useMutation({
         mutationFn: async (data: UpdateEventRequest) => UpdateEventFn({ data }),
         onSuccess:async(data, variables)=>{
-         queryClient.setQueryData(GetEventByIdQueryOption({eventId:variables.eventId}).queryKey, data)
+         queryClient.setQueryData(GetEventByIdQueryOption({slug:variables.slug}).queryKey, data)
              await queryClient
              .invalidateQueries({queryKey:GetEventsQueryOption({}).queryKey,exact:true })
         }
