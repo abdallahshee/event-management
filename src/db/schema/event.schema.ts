@@ -8,7 +8,7 @@ import { review } from "./review.schema";
 import { location } from "./location.schema";
 import { ticket } from "./ticket.schema";
 import { payment } from "./payment.schema";
-import { SupportedEventCategories, SupportedEventStatus } from "../utils";
+import { SupportedEventCategories, SupportedEventStatus, SupportedEventTypes } from "../utils";
 import { profile } from "./profile.schema";
 import { waitlist } from "./waitlist.schema";
 
@@ -21,7 +21,8 @@ export const event = pgTable('event', {
   locationId: text('location_id').notNull().references(()=>location.id),
   coverImage: text('cover_image'),
   isFeatured: boolean('is_featured').default(false).notNull(),
-  price: numeric('price', { precision: 10, scale: 2,mode:"number" }).notNull(),
+  type:text('type',{enum:SupportedEventTypes}).notNull(),
+  price: numeric('price', { precision: 10, scale: 2,mode:"number" }).notNull().default(0),
   capacity: integer('capacity').notNull(),
   slug: text('slug').notNull().unique(),
   slotsRemaining: integer('slots_remaining').notNull(),

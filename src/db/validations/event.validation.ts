@@ -4,10 +4,11 @@ import { event } from "../schema"
 import z from "zod"
 import type { InferSelectModel } from "drizzle-orm"
 import { CreateLocationSchema } from "./location.validation"
-import { SupportedEventCategories } from "../utils"
+import { SupportedEventCategories, SupportedEventTypes } from "../utils"
 
 export const CreateEventSchema = createInsertSchema(event, {
   title: z.string().min(3, "Title must be at least 3 characters").max(100, "Title too long"),
+  type:z.enum(SupportedEventTypes,"Invalid Event Type"),
   description: z.string().max(1000, "Description too long").nonempty(),
   price: z.number().min(0, "Price cannot be negative").default(0),
   capacity: z.number().int().min(1, "Capacity must be at least 1"),
@@ -20,6 +21,7 @@ export const CreateEventSchema = createInsertSchema(event, {
 })
   .pick({
     title: true,
+    type:true,
     description: true,
     coverImage: true,
     category: true,
@@ -48,3 +50,4 @@ export type UpdateEventRequest = z.infer<typeof UpdateEventSchema>
 
 
 export type Event = InferSelectModel<typeof event>
+export type EventCategory=Event['category']

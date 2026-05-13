@@ -39,6 +39,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 const MOCK_EVENT: Event = {
   id: 'abc123',
   createdBy:"utrref",
+  type:"free",
   slug:"ffyuygiygig",
   title: 'Nairobi Tech Summit 2025',
   description: `Join us for the biggest tech conference in East Africa. The Nairobi Tech Summit brings together innovators, engineers, founders, and investors from across the continent for two days of talks, workshops, and networking.\n\nExpect keynotes from industry leaders, hands-on sessions covering AI, cloud infrastructure, fintech, and mobile-first development, plus dedicated time to connect with fellow builders shaping Africa's tech future.\n\nWhether you're a seasoned engineer or just starting out, this summit is designed to inspire, educate, and connect.`,

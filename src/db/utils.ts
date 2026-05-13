@@ -26,6 +26,7 @@ export const SupportedEventStatus=['draft', 'published', 'cancelled'] as const
 export const SupportedBookingStatus=['pending', 'confirmed', 'cancelled'] as const
 export const SupportedPaymentStatus=['pending', 'paid', 'refunded'] as const
 export const SupportedUserRoles=['admin', 'user',"premium"] as const
+export const SupportedEventTypes=['free', 'paid'] as const
 
 
 
