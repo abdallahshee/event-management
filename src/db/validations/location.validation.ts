@@ -16,14 +16,16 @@ const coordinateSchema = z.object({
         .max(90, "Latitude must be between -90 and 90")
 })
 
-export const CreateLocationSchema = createSelectSchema(location, {
+const LocationSchema = createSelectSchema(location, {
     name: z.string().min(50, "Please Provide a name fo this Location"),
-    city:z.string().min(1),
+    city: z.string().min(1),
     coordinates: coordinateSchema
-}).pick({
-    name:true,
-    coordinates:true,
-    city:true
+})
+
+export const CreateLocationSchema = LocationSchema.pick({
+    name: true,
+    coordinates: true,
+    city: true
 })
 export type CreateLocationRequest = z.infer<typeof CreateLocationSchema>
 

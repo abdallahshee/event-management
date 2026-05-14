@@ -6,18 +6,15 @@ import {
 import '@mantine/core/styles.css'
 import appCss from '../styles.css?url'
 import type { QueryClient } from '@tanstack/react-query'
-import type { User } from '@supabase/supabase-js'
 import { MantineProvider } from '@mantine/core'
 import { theme } from '#/components/ThemeToggler'
-import { getCurrentUserAndRoleQueryOption } from '#/db/queries/profile.queries'
 import { AdminLayout } from '#/components/Layouts/AdminLayout'
 import { UserLayout } from '#/components/Layouts/UserLayout'
+import { getCurrentUserAndRoleFn } from '#/server/functions/profile.functions'
 
 
 interface MyRouterContext {
   queryClient: QueryClient
-  user: User | null
-  isAdmin: boolean
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -31,13 +28,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       { rel: 'stylesheet', href: appCss },
     ],
   }),
-  beforeLoad: async ({ context }) => {
-    const result = await context.queryClient.fetchQuery(
-      getCurrentUserAndRoleQueryOption()
-    )
+  beforeLoad: async () => {
+    const result = await getCurrentUserAndRoleFn()
     return {
       user: result?.user ?? null,
-      role: result?.role?? false,
+      role: result?.role ?? false,
     }
   },
   shellComponent: RootDocument,
@@ -63,7 +58,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { user, role } = Route.useRouteContext()
 
-  if (user && role==="admin") {
+  if (user && role === "admin") {
     return <AdminLayout />
   }
   return <UserLayout />

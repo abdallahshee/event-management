@@ -10,16 +10,20 @@
 //     uniqueUserEvent: unique().on(table.userId, table.eventId), // one review per user per event
 // }))
 
-import { createInsertSchema } from "drizzle-zod";
+import { createSelectSchema } from "drizzle-zod";
 import { review } from "../schema";
 import z from "zod"
 import { PaginatorSchema } from "../utils";
 
-export const CreateReviewSchema = createInsertSchema(review, {
+
+const ReviewSchema = createSelectSchema(review, {
   eventId: z.string().nonempty(),
   rating: z.coerce.number().int().min(1, "Rating must be at least 1").max(5, "Rating cannot exceed 5").optional(),
   comment: z.string().min(10, "Comment must be at least 10 characters").max(1000, "Comment too long"),
 })
+
+
+export const CreateReviewSchema = ReviewSchema
   .pick({
     rating: true,
     comment: true,
@@ -28,7 +32,7 @@ export const CreateReviewSchema = createInsertSchema(review, {
 export type CreateReviewRequest = z.infer<typeof CreateReviewSchema>
 
 
-export const GetEventReviewsSchema = z.object({
-  eventId: z.string().nonempty(),
+export const GetEventReviewsSchema = ReviewSchema.pick({
+  eventId: true
 }).extend(PaginatorSchema.shape)
 export type GetEventReviewsRequest = z.infer<typeof GetEventReviewsSchema>

@@ -7,16 +7,19 @@
 //   updatedAt:   timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull().$onUpdate(() => new Date()),
 // })
 
-import { createInsertSchema } from "drizzle-zod";
+import { createSelectSchema } from "drizzle-zod";
 import z from "zod"
 import { PaginatorSchema } from "../utils";
 import { ticket } from "../schema/ticket.schema";
 
-export const CreateTicketSchema = createInsertSchema(ticket, {
+
+const TicketSchema = createSelectSchema(ticket, {
   eventId: z.string().nonempty(),
   userId: z.string().nonempty(),
   amount: z.number().min(1)
 })
+
+export const CreateTicketSchema = TicketSchema
   .pick({
     eventId: true,
     userId: true,
@@ -25,9 +28,8 @@ export const CreateTicketSchema = createInsertSchema(ticket, {
 export type CreateTicketRequest = z.infer<typeof CreateTicketSchema>
 
 
-export const GetUserTicketsSchema = CreateTicketSchema.omit({ amount: true, eventId: true })
-.extend(PaginatorSchema.shape)
-
+export const GetUserTicketsSchema = TicketSchema.pick({ userId: true })
+  .extend(PaginatorSchema.shape)
 export type GetUserTicketsRequest = z.infer<typeof GetUserTicketsSchema>
 
 

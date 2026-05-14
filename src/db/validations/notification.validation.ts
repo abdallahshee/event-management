@@ -19,40 +19,43 @@
 //   createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
 // })
 
-import { createInsertSchema } from "drizzle-zod";
+import { createSelectSchema } from "drizzle-zod";
 import { notification } from "../schema";
 import z from "zod"
 import { PaginatorSchema, SupportedNotifications } from "../utils";
 
-export const CreateNotificationSchema = createInsertSchema(notification, {
+const NotificationSchema = createSelectSchema(notification, {
   title: z.string().min(1, "Title is required").max(100, "Title too long"),
   body: z.string().min(1, "Body is required").max(500, "Body too long"),
-  type: z.enum(SupportedNotifications,  "Invalid notification type" ).optional(),
+  type: z.enum(SupportedNotifications, "Invalid notification type").optional(),
+  userId: z.string().min(1)
 })
-  .pick({
-    title: true,
-    body: true,
-    type: true,
-    userId: true
-  })
+
+export const CreateNotificationSchema = NotificationSchema.pick({
+  title: true,
+  body: true,
+  type: true,
+  userId: true
+})
 export type CreateNotificationRequest = z.infer<typeof CreateNotificationSchema>
 
 
-export const GetNotificationByIdSchema = z.object({
-  type: z.enum(SupportedNotifications).optional(),
+export const GetNotificationByIdSchema = NotificationSchema.pick({
+  type: true
+}).extend({
   notificationId: z.string().min(1)
 })
 export type GetNotificationByIdRequest = z.infer<typeof GetNotificationByIdSchema>
 
 
-export const GetUserNotificationsSchema = z.object({
-  type: z.enum(SupportedNotifications).optional(),
-  userId: z.string().min(1),
+export const GetUserNotificationsSchema = NotificationSchema.pick({
+  type: true,
+  userId: true,
 }).extend(PaginatorSchema.shape)
 export type GetUserNotificationsRequest = z.infer<typeof GetUserNotificationsSchema>
 
 
-export const GetNotificationsSchema = z.object({
-  type: z.enum(SupportedNotifications).optional(),
+export const GetNotificationsSchema = NotificationSchema.pick({
+  type: true,
 }).extend(PaginatorSchema.shape)
 export type GetNotificationsRequest = z.infer<typeof GetNotificationsSchema>

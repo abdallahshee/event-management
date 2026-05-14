@@ -10,20 +10,22 @@
 //   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().$onUpdate(() => new Date()),
 // })
 
-import { createInsertSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { payment } from "../schema";
 import z from "zod"
 import { PaginatorSchema, SupportedCurrencies, SupportedProviders } from "../utils";
 
-export const CreatePaymentSchema = createInsertSchema(payment, {
+const PaymentSchema = createSelectSchema(payment, {
   ticketId: z.string().nonempty(),
   eventId: z.string().nonempty(),
   userId: z.string().nonempty(),
   amount: z.number().min(1, "Amount must be greater than 0"),
-  currency: z.enum(SupportedCurrencies, "Unsupported currency" ).default('USD').optional(),
-  provider: z.enum(SupportedProviders, "Unsupported payment provider" ).optional(),
+  currency: z.enum(SupportedCurrencies, "Unsupported currency").default('USD').optional(),
+  provider: z.enum(SupportedProviders, "Unsupported payment provider").optional(),
   referenceNumber: z.string().min(1, "Transaction ID is required"),
 })
+
+export const CreatePaymentSchema = PaymentSchema
   .pick({
     ticketId: true,
     amount: true,
@@ -32,24 +34,23 @@ export const CreatePaymentSchema = createInsertSchema(payment, {
     provider: true,
     referenceNumber: true,
     userId: true
-
   })
 export type CreatePaymentRequest = z.infer<typeof CreatePaymentSchema>
 
 
-export const GetPaymentsSchema = z.object({
-  provider: z.enum(SupportedProviders, "Invalid Payment Provider").optional()
+export const GetPaymentsSchema = PaymentSchema.pick({
+  provider: true
 }).extend(PaginatorSchema.shape)
 export type GetPaymentsRequest = z.infer<typeof GetPaymentsSchema>
 
 
 export const GetUserPaymentsSchema = GetPaymentsSchema.extend({
-  userId:z.string().min(1)
+  userId: z.string().min(1)
 })
 export type GetUserPaymentsRequest = z.infer<typeof GetUserPaymentsSchema>
 
 
-export const GetEventPaymentsSchema=GetPaymentsSchema.extend({
-  eventId:z.string().min(1)
+export const GetEventPaymentsSchema = GetPaymentsSchema.extend({
+  eventId: z.string().min(1)
 })
-export type GetEventPaymentsRequest=z.infer<typeof GetEventPaymentsSchema>
+export type GetEventPaymentsRequest = z.infer<typeof GetEventPaymentsSchema>
