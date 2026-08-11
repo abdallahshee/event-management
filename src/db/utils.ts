@@ -9,6 +9,8 @@ export const PaginatorSchema=z.object({
 })
 export type PaginatorRequest=z.infer<typeof PaginatorSchema>
 
+export const PAGE_SIZE = 6
+
 
 export const SupportedNotifications = [
   'booking_confirmed',
@@ -25,11 +27,8 @@ export const SupportedEventCategories=['music', 'tech', 'food', 'sports', 'arts'
 export const SupportedEventStatus=['draft', 'published', 'cancelled'] as const
 export const SupportedBookingStatus=['pending', 'confirmed', 'cancelled'] as const
 export const SupportedPaymentStatus=['pending', 'paid', 'refunded'] as const
-export const SupportedUserRoles=['admin', 'user',"premium"] as const
+export const SupportedUserRoles=['admin', 'user','premium'] as const
 export const SupportedEventTypes=['free', 'paid'] as const
-
-
-
 
 export type UserMetadata = {
   role: Role

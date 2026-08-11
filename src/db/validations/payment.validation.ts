@@ -10,7 +10,7 @@
 //   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().$onUpdate(() => new Date()),
 // })
 
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createSelectSchema } from "drizzle-zod";
 import { payment } from "../schema";
 import z from "zod"
 import { PaginatorSchema, SupportedCurrencies, SupportedProviders } from "../utils";

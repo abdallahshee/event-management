@@ -1,4 +1,4 @@
-import { text, numeric, integer, timestamp, pgTable, boolean, uuid } from "drizzle-orm/pg-core";
+import { text, numeric, integer, timestamp, pgTable, boolean } from "drizzle-orm/pg-core";
 
 import { relations } from "drizzle-orm";
 

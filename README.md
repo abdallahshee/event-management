@@ -1,6 +1,6 @@
 # Event Management App
 
-A modern event management platform built with TanStack Start, React, and Supabase that allows authenticated users to browse and book events while giving administrators full control over event creation and management.
+A modern event management platform built with Next.js, React, and Supabase that allows authenticated users to browse and book events while giving administrators full control over event creation and management.
 
 ---
 
@@ -61,7 +61,7 @@ The system ensures a clean separation between user permissions and admin capabil
 
 ### Frontend
 
-* TanStack Start
+* Next.js (App Router)
 * React
 * TypeScript
 * Tailwind CSS
@@ -135,27 +135,19 @@ event-management-app/
 │
 ├── public/                     # Static assets such as images and icons
 ├── src/
+│   ├── app/                    # Next.js App Router routes, layouts, providers
 │   ├── components/             # Shared reusable UI components
-│   ├── routes/                 # TanStack Start routes and pages
-│   ├── supabase/                 # Global styling helpers
-│   ├── css/                    # Component-specific CSS files
-│   ├── db/                     # Database schemas, queries, and typed models
-│   ├── validations/            # Supabase browser and server clients
-│   ├── server/                 # Server-side logic and RPC functions
-│   ├── sql/                    # SQL , policies, and triggers
-│   ├── hooks/                  # Custom React hooks
-│   ├── utils/                  # Utility helper functions
-│   ├── route.tsx               # Main TanStack Router setup
-│   ├── routerTree.gen.ts       # Auto-generated TanStack route tree
+│   ├── db/                     # Database schemas, queries, validations, and typed models
+│   ├── server/                 # Server Actions and server-side auth helpers
+│   ├── proxy.ts                # Next.js proxy (middleware) for Supabase session refresh
 │   └── styles.css              # Global CSS entry file
 │
-├── components.json             # UI component configuration
 ├── drizzle.config.ts           # Database ORM configuration
-├── package-lock.json           # Dependency lock file
+├── next.config.ts              # Next.js configuration
 ├── package.json                # Project metadata and scripts
+├── postcss.config.mjs          # Tailwind CSS v4 PostCSS configuration
 ├── README.md                   # Documentation
 ├── tsconfig.json               # TypeScript configuration
-├── vite.config.ts              # Vite configuration
 ```
 
 ---
@@ -211,18 +203,19 @@ Inside your Supabase project:
 
 ### Step 3: Create a `.env` File
 
-Create a `.env.local` file at the root of your project.
+Create a `.env` (or `.env.local`) file at the root of your project.
 
 Example:
 
 ```env
-# Public Client Variables
-VITE_SUPABASE_URL=https://your-project-id.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=your_public_anon_key
+# Public Client Variables (exposed to the browser — must be prefixed with NEXT_PUBLIC_)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_public_anon_key
 
-# Optional Server Variables
+# Server-only Variables
 SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_PUBLISHABLE_KEY=your_public_anon_key
+DATABASE_URL=postgresql://user:password@host:5432/db
 ```
 
 ### Step 4: Access Environment Variables
@@ -233,8 +226,8 @@ Example Supabase client setup:
 import { createClient } from '@supabase/supabase-js'
 
 export const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
 )
 ```
 
