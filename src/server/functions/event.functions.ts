@@ -28,7 +28,7 @@ export const CreateEventFn = createServerFn({ method: 'POST' })
                 theId = data.locationId
             }
             const [theEvents] = await db.insert(event)
-                .values({ ...data, locationId: theId,slug, slotsRemaining: data.capacity,createdBy:context.user?.id!}).returning()
+                .values({ ...data, locationId: theId,slug, slotsRemaining: data.capacity}).returning()
             return theEvents
         } catch (err) {
             console.log('Error from CreateEventFn ', err)
@@ -42,28 +42,52 @@ export const GetEventsFn = createServerFn({ method: 'GET' })
     .inputValidator(PaginatorSchema)
     .handler(async ({ data }) => {
         try {
-            const page = data.page ?? 1
-            const limit = data.limit ?? 10
+            const page   = data.page  ?? 1
+            const limit  = data.limit ?? 10
             const offset = (page - 1) * limit
 
             const [theEvents, total] = await Promise.all([
-                db.query.event.findMany({
-                    with: { location: {columns:{name:true}} },
-                    limit,
-                    offset,
-                    orderBy: asc(event.startsAt)
-                }),
-                db.$count(event)
+                db
+                    .select({
+                        id:             event.id,
+                        title:          event.title,
+                        slug:           event.slug,
+                        type:           event.type,
+                        description:    event.description,
+                        coverImage:     event.coverImage,
+                        category:       event.category,
+                        price:          event.price,
+                        capacity:       event.capacity,
+                        slotsRemaining: event.slotsRemaining,
+                        startsAt:       event.startsAt,
+                        endsAt:         event.endsAt,
+                        status:         event.status,
+                        isFeatured:     event.isFeatured,
+                        locationId:     event.locationId,
+                        createdAt:      event.createdAt,
+                        updatedAt:      event.updatedAt,
+                        location: {
+                            name: location.name,
+                        },
+                    })
+                    .from(event)
+                    .leftJoin(location, eq(event.locationId, location.id))
+                    .orderBy(asc(event.startsAt))
+                    .limit(limit)
+                    .offset(offset),
+                db.$count(event),
             ])
+
             return {
                 data: theEvents,
-                meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
+                meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
             }
         } catch (err) {
             console.log('Error from GetEventsFn ', err)
             throw err
         }
     })
+
 
 // Getting one Event By ID
 export const GetEventBySlugFn = createServerFn({ method: 'GET' })
@@ -94,3 +118,7 @@ export const UpdateEventFn = createServerFn({ method: 'POST' })
             throw err
         }
     })
+
+
+    // To be Implemented
+    // Get Events Near Me Function

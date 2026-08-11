@@ -9,14 +9,12 @@ import { location } from "./location.schema";
 import { ticket } from "./ticket.schema";
 import { payment } from "./payment.schema";
 import { SupportedEventCategories, SupportedEventStatus, SupportedEventTypes } from "../utils";
-import { profile } from "./profile.schema";
 import { waitlist } from "./waitlist.schema";
 
 
 export const event = pgTable('event', {
   id: text('id').primaryKey().$default(() => nanoid(16)),
   title: text('title').notNull(),
-  createdBy:uuid('created_by').notNull().references(() => profile.id), // back in
   description: text('description'),
   locationId: text('location_id').notNull().references(()=>location.id),
   coverImage: text('cover_image'),
@@ -36,7 +34,6 @@ export const event = pgTable('event', {
 )
 
 export const eventRelations = relations(event, ({one, many }) => ({
-  creator:one(profile, { fields: [event.createdBy], references: [profile.id] }),
   location:one(location,{
     fields:[event.locationId],
     references:[location.id]

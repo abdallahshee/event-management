@@ -1,4 +1,4 @@
-import { createInsertSchema, createSelectSchema } from "drizzle-zod"
+import {  createSelectSchema } from "drizzle-zod"
 import { event } from "../schema"
 
 import z from "zod"
@@ -16,6 +16,7 @@ const EventSchema = createSelectSchema(event, {
   endsAt: z.string().min(1, "Invalid end date"),
   coverImage: z.url("Invalid image URL").optional(),
   locationId: z.string().optional(),
+  
   category: z.enum(SupportedEventCategories, "Invalid Event Category").optional(),
   isFeatured: z.boolean().default(false),
 })
@@ -32,7 +33,7 @@ export const CreateEventSchema = EventSchema.pick({
   capacity: true,
   startsAt: true,
   endsAt: true,
-  locationId: true
+  locationId: true,
 }).extend({ location: CreateLocationSchema })
   .refine(data => data.endsAt > data.startsAt, {
     message: "End date must be after start date",

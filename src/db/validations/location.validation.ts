@@ -17,7 +17,7 @@ const coordinateSchema = z.object({
 })
 
 const LocationSchema = createSelectSchema(location, {
-    name: z.string().min(50, "Please Provide a name fo this Location"),
+    name: z.string().min(3, "Please Provide a name fo this Location"),
     city: z.string().min(1),
     coordinates: coordinateSchema
 })

@@ -5,344 +5,24 @@ import {
 } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import '@mantine/dates/styles.css'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { Search, Calendar, MapPin, Users, Clock, ImageOff, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useDebouncedValue } from '@mantine/hooks'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { SupportedEventCategories } from '#/db/utils'
 import type { EventCategory } from '#/db/validations/event.validation'
+import { GetEventsQueryOption } from '#/db/queries/event.queries'
+import { EventCard, getCategoryColor, type EventItem } from '#/components/EventCard'
+import { EventsList, PAGE_SIZE, type Category } from '#/components/EventList'
 
-// ── TYPES ──
-type Category = 'all' | NonNullable<EventCategory>
 
-type EventItem = {
-  id:             string
-  title:          string
-  slug:           string
-  type:           'free' | 'paid'
-  description:    string | null
-  coverImage:     string | null
-  category:       EventCategory
-  price:          number
-  capacity:       number
-  slotsRemaining: number
-  startsAt:       string
-  endsAt:         string
-  status:         string
-  isFeatured:     boolean
-  locationId:     string | null
-  location:       { name: string } | null
-}
 
 // ── CONSTANTS ──
+
 const CATEGORIES: Category[] = ['all', ...SupportedEventCategories]
 
-const CATEGORY_COLORS: Record<NonNullable<EventCategory>, string> = {
-  music:    'violet',
-  tech:     'blue',
-  food:     'orange',
-  sports:   'green',
-  arts:     'pink',
-  business: 'cyan',
-}
 
-const getCategoryColor = (category: EventCategory): string =>
-  category ? CATEGORY_COLORS[category] : 'gray'
 
-// ── MOCK DATA ──
-const MOCK_EVENTS: EventItem[] = [
-  {
-    id:             '1',
-    title:          'Nairobi Tech Summit 2026',
-    slug:           'nairobi-tech-summit-2026',
-    type:           'free',
-    description:    'A gathering of the brightest minds in tech across East Africa. Talks, workshops and networking.',
-    coverImage:     'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
-    category:       'tech',
-    price:          2500,
-    capacity:       500,
-    slotsRemaining: 120,
-    startsAt:       '2026-07-10T09:00:00.000Z',
-    endsAt:         '2026-07-11T17:00:00.000Z',
-    status:         'published',
-    isFeatured:     true,
-    locationId:     'loc-1',
-    location:       { name: 'KICC, Nairobi' },
-  },
-  {
-    id:             '2',
-    title:          'Blankets & Wine Nairobi',
-    slug:           'blankets-and-wine-nairobi',
-    type:           'paid',
-    description:    'An iconic outdoor music experience featuring local and international artists under the sun.',
-    coverImage:     'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800',
-    category:       'music',
-    price:          3500,
-    capacity:       2000,
-    slotsRemaining: 8,
-    startsAt:       '2026-07-19T13:00:00.000Z',
-    endsAt:         '2026-07-19T22:00:00.000Z',
-    status:         'published',
-    isFeatured:     true,
-    locationId:     'loc-2',
-    location:       { name: 'Ngong Racecourse, Nairobi' },
-  },
-  {
-    id:             '3',
-    title:          'Nairobi Food Festival',
-    slug:           'nairobi-food-festival',
-    type:           'paid',
-    description:    'Celebrate the best of Kenyan and international cuisine with top chefs, tastings and live cooking demos.',
-    coverImage:     'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800',
-    category:       'food',
-    price:          1500,
-    capacity:       800,
-    slotsRemaining: 340,
-    startsAt:       '2026-08-02T10:00:00.000Z',
-    endsAt:         '2026-08-03T20:00:00.000Z',
-    status:         'published',
-    isFeatured:     false,
-    locationId:     'loc-3',
-    location:       { name: 'The Hub Karen, Nairobi' },
-  },
-  {
-    id:             '4',
-    title:          'Startup Pitch Night',
-    slug:           'startup-pitch-night',
-    type:           'free',
-    description:    'Watch 10 early-stage startups pitch to a panel of top investors. Network with founders and VCs.',
-    coverImage:     'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800',
-    category:       'business',
-    price:          0,
-    capacity:       150,
-    slotsRemaining: 0,
-    startsAt:       '2026-07-24T18:00:00.000Z',
-    endsAt:         '2026-07-24T21:00:00.000Z',
-    status:         'published',
-    isFeatured:     false,
-    locationId:     'loc-4',
-    location:       { name: 'iHub, Nairobi' },
-  },
-  {
-    id:             '5',
-    title:          'Safari 7s Rugby Tournament',
-    slug:           'safari-7s-rugby-tournament',
-    type:           'paid',
-    description:    "Kenya's premier sevens rugby tournament featuring clubs from across the country.",
-    coverImage:     'https://images.unsplash.com/photo-1508098682722-e99c643e7f0b?w=800',
-    category:       'sports',
-    price:          500,
-    capacity:       5000,
-    slotsRemaining: 2300,
-    startsAt:       '2026-08-15T08:00:00.000Z',
-    endsAt:         '2026-08-16T18:00:00.000Z',
-    status:         'published',
-    isFeatured:     true,
-    locationId:     'loc-5',
-    location:       { name: 'RFUEA Ground, Nairobi' },
-  },
-  {
-    id:             '6',
-    title:          'East Africa Art Fair',
-    slug:           'east-africa-art-fair',
-    type:           'paid',
-    description:    'A curated showcase of contemporary art from emerging and established East African artists.',
-    coverImage:     'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800',
-    category:       'arts',
-    price:          1000,
-    capacity:       300,
-    slotsRemaining: 95,
-    startsAt:       '2026-09-05T10:00:00.000Z',
-    endsAt:         '2026-09-07T19:00:00.000Z',
-    status:         'published',
-    isFeatured:     false,
-    locationId:     'loc-6',
-    location:       { name: 'Nairobi National Museum' },
-  },
-    {
-    id:             '7',
-    title:          'Blankets & Wine Nairobi',
-    slug:           'blankets-and-wine-nairobi',
-    type:           'paid',
-    description:    'An iconic outdoor music experience featuring local and international artists under the sun.',
-    coverImage:     'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800',
-    category:       'music',
-    price:          3500,
-    capacity:       2000,
-    slotsRemaining: 8,
-    startsAt:       '2026-07-19T13:00:00.000Z',
-    endsAt:         '2026-07-19T22:00:00.000Z',
-    status:         'published',
-    isFeatured:     true,
-    locationId:     'loc-2',
-    location:       { name: 'Ngong Racecourse, Nairobi' },
-  },
-  {
-    id:             '8',
-    title:          'Nairobi Food Festival',
-    slug:           'nairobi-food-festival',
-    type:           'paid',
-    description:    'Celebrate the best of Kenyan and international cuisine with top chefs, tastings and live cooking demos.',
-    coverImage:     'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800',
-    category:       'food',
-    price:          1500,
-    capacity:       800,
-    slotsRemaining: 340,
-    startsAt:       '2026-08-02T10:00:00.000Z',
-    endsAt:         '2026-08-03T20:00:00.000Z',
-    status:         'published',
-    isFeatured:     false,
-    locationId:     'loc-3',
-    location:       { name: 'The Hub Karen, Nairobi' },
-  },
-  {
-    id:             '9',
-    title:          'Startup Pitch Night',
-    slug:           'startup-pitch-night',
-    type:           'free',
-    description:    'Watch 10 early-stage startups pitch to a panel of top investors. Network with founders and VCs.',
-    coverImage:     'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800',
-    category:       'business',
-    price:          0,
-    capacity:       150,
-    slotsRemaining: 0,
-    startsAt:       '2026-07-24T18:00:00.000Z',
-    endsAt:         '2026-07-24T21:00:00.000Z',
-    status:         'published',
-    isFeatured:     false,
-    locationId:     'loc-4',
-    location:       { name: 'iHub, Nairobi' },
-  },
-  {
-    id:             '9',
-    title:          'Safari 7s Rugby Tournament',
-    slug:           'safari-7s-rugby-tournament',
-    type:           'paid',
-    description:    "Kenya's premier sevens rugby tournament featuring clubs from across the country.",
-    coverImage:     'https://images.unsplash.com/photo-1508098682722-e99c643e7f0b?w=800',
-    category:       'sports',
-    price:          500,
-    capacity:       5000,
-    slotsRemaining: 2300,
-    startsAt:       '2026-08-15T08:00:00.000Z',
-    endsAt:         '2026-08-16T18:00:00.000Z',
-    status:         'published',
-    isFeatured:     true,
-    locationId:     'loc-5',
-    location:       { name: 'RFUEA Ground, Nairobi' },
-  },
-  {
-    id:             '10',
-    title:          'East Africa Art Fair',
-    slug:           'east-africa-art-fair',
-    type:           'paid',
-    description:    'A curated showcase of contemporary art from emerging and established East African artists.',
-    coverImage:     'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800',
-    category:       'arts',
-    price:          1000,
-    capacity:       300,
-    slotsRemaining: 95,
-    startsAt:       '2026-09-05T10:00:00.000Z',
-    endsAt:         '2026-09-07T19:00:00.000Z',
-    status:         'published',
-    isFeatured:     false,
-    locationId:     'loc-6',
-    location:       { name: 'Nairobi National Museum' },
-  },
-    {
-    id:             '11',
-    title:          'Blankets & Wine Nairobi',
-    slug:           'blankets-and-wine-nairobi',
-    type:           'paid',
-    description:    'An iconic outdoor music experience featuring local and international artists under the sun.',
-    coverImage:     'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800',
-    category:       'music',
-    price:          3500,
-    capacity:       2000,
-    slotsRemaining: 8,
-    startsAt:       '2026-07-19T13:00:00.000Z',
-    endsAt:         '2026-07-19T22:00:00.000Z',
-    status:         'published',
-    isFeatured:     true,
-    locationId:     'loc-2',
-    location:       { name: 'Ngong Racecourse, Nairobi' },
-  },
-  {
-    id:             '12',
-    title:          'Nairobi Food Festival',
-    slug:           'nairobi-food-festival',
-    type:           'paid',
-    description:    'Celebrate the best of Kenyan and international cuisine with top chefs, tastings and live cooking demos.',
-    coverImage:     'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800',
-    category:       'food',
-    price:          1500,
-    capacity:       800,
-    slotsRemaining: 340,
-    startsAt:       '2026-08-02T10:00:00.000Z',
-    endsAt:         '2026-08-03T20:00:00.000Z',
-    status:         'published',
-    isFeatured:     false,
-    locationId:     'loc-3',
-    location:       { name: 'The Hub Karen, Nairobi' },
-  },
-  {
-    id:             '13',
-    title:          'Startup Pitch Night',
-    slug:           'startup-pitch-night',
-    type:           'free',
-    description:    'Watch 10 early-stage startups pitch to a panel of top investors. Network with founders and VCs.',
-    coverImage:     'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800',
-    category:       'business',
-    price:          0,
-    capacity:       150,
-    slotsRemaining: 0,
-    startsAt:       '2026-07-24T18:00:00.000Z',
-    endsAt:         '2026-07-24T21:00:00.000Z',
-    status:         'published',
-    isFeatured:     false,
-    locationId:     'loc-4',
-    location:       { name: 'iHub, Nairobi' },
-  },
-  {
-    id:             '14',
-    title:          'Safari 7s Rugby Tournament',
-    slug:           'safari-7s-rugby-tournament',
-    type:           'paid',
-    description:    "Kenya's premier sevens rugby tournament featuring clubs from across the country.",
-    coverImage:     'https://images.unsplash.com/photo-1508098682722-e99c643e7f0b?w=800',
-    category:       'sports',
-    price:          500,
-    capacity:       5000,
-    slotsRemaining: 2300,
-    startsAt:       '2026-08-15T08:00:00.000Z',
-    endsAt:         '2026-08-16T18:00:00.000Z',
-    status:         'published',
-    isFeatured:     true,
-    locationId:     'loc-5',
-    location:       { name: 'RFUEA Ground, Nairobi' },
-  },
-  {
-    id:             '15',
-    title:          'East Africa Art Fair',
-    slug:           'east-africa-art-fair',
-    type:           'paid',
-    description:    'A curated showcase of contemporary art from emerging and established East African artists.',
-    coverImage:     'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800',
-    category:       'arts',
-    price:          1000,
-    capacity:       300,
-    slotsRemaining: 95,
-    startsAt:       '2026-09-05T10:00:00.000Z',
-    endsAt:         '2026-09-07T19:00:00.000Z',
-    status:         'published',
-    isFeatured:     false,
-    locationId:     'loc-6',
-    location:       { name: 'Nairobi National Museum' },
-  },
-]
-
-export const Route = createFileRoute('/')({
-  component: HomePage,
-})
 
 // ── SKELETONS ──
 function EventCardSkeleton() {
@@ -410,10 +90,21 @@ function FeaturedSkeleton() {
   )
 }
 
+function EventsPageSkeleton() {
+  return (
+    <div className="space-y-6 py-6">
+      <FeaturedSkeleton />
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
+        {Array.from({ length: PAGE_SIZE }).map((_, i) => <EventCardSkeleton key={i} />)}
+      </SimpleGrid>
+    </div>
+  )
+}
+
 // ── FEATURED BANNER ──
-function FeaturedEvents({ events }: { events: EventItem[] }) {
+export function FeaturedEvents({ events }: { events: EventItem[] }) {
   const [index, setIndex] = useState(0)
-  const ev = events[index]
+  const ev    = events[index]
   const price = typeof ev.price === 'number' ? ev.price : parseFloat(ev.price as any)
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -531,143 +222,31 @@ function FeaturedEvents({ events }: { events: EventItem[] }) {
   )
 }
 
-// ── EVENT CARD ──
-function EventCard({ event }: { event: EventItem }) {
-  const isSoldOut  = event.slotsRemaining === 0
-  const isLowStock = event.slotsRemaining > 0 && event.slotsRemaining <= 10
-  const price      = typeof event.price === 'number' ? event.price : parseFloat(event.price as any)
-  const formatDate = (d: string) =>
-    new Date(d).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' })
 
-  return (
-    <Card withBorder radius="md" p={0} className="flex flex-col overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-      <Link to="/events/$slug" params={{ slug: event.slug }} className="contents">
-        <div className="relative h-40 w-full shrink-0 bg-slate-100 dark:bg-slate-800">
-          {event.coverImage ? (
-            <img src={event.coverImage} alt={event.title} className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <ImageOff size={28} className="text-slate-300 dark:text-slate-600" />
-            </div>
-          )}
-          <div className="absolute left-3 top-3 flex gap-1.5">
-            {isSoldOut  && <Badge variant="filled" color="red"    size="sm" radius="sm">Sold out</Badge>}
-            {isLowStock && <Badge variant="filled" color="orange" size="sm" radius="sm">{event.slotsRemaining} left</Badge>}
-            {event.type === 'free' && !isSoldOut && (
-              <Badge variant="filled" color="green" size="sm" radius="sm">Free</Badge>
-            )}
-          </div>
-        </div>
 
-        <Stack gap="xs" p="md" className="flex-1">
-          {event.category && (
-            <Badge
-              variant="light"
-              color={getCategoryColor(event.category)}
-              size="sm"
-              radius="sm"
-              className="w-fit capitalize"
-            >
-              {event.category}
-            </Badge>
-          )}
-          <p className="line-clamp-2 text-sm font-semibold leading-snug text-slate-900 dark:text-slate-50">
-            {event.title}
-          </p>
-          <Stack gap={4} mt={2}>
-            {event.location && (
-              <Group gap={6} wrap="nowrap">
-                <MapPin size={12} className="shrink-0 text-slate-400" />
-                <span className="truncate text-xs text-slate-500 dark:text-slate-400">{event.location.name}</span>
-              </Group>
-            )}
-            <Group gap={6} wrap="nowrap">
-              <Clock size={12} className="shrink-0 text-slate-400" />
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                {formatDate(event.startsAt)} — {formatDate(event.endsAt)}
-              </span>
-            </Group>
-            <Group gap={6} wrap="nowrap">
-              <Users size={12} className="shrink-0 text-slate-400" />
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                {event.slotsRemaining} / {event.capacity} slots remaining
-              </span>
-            </Group>
-          </Stack>
-        </Stack>
-      </Link>
 
-      <Group justify="space-between" align="center" px="md" py="sm" className="shrink-0 border-t border-slate-100 dark:border-slate-800">
-        <p className="text-sm font-bold text-slate-900 dark:text-slate-50">
-          {event.type === 'free' || price === 0
-            ? <Badge color="green" variant="light">Free</Badge>
-            : `KES ${price.toLocaleString()}`
-          }
-        </p>
-        <Group gap="xs">
-          <Link to="/events/$slug" params={{ slug: event.slug }}>
-            <Button size="xs" radius="md" color="blue" variant="light">Details</Button>
-          </Link>
-          <Button
-            size="xs"
-            radius="md"
-            color="blue"
-            variant={isSoldOut ? 'outline' : 'filled'}
-            disabled={isSoldOut}
-          >
-            {isSoldOut ? 'Sold out' : event.type === 'free' ? 'Register' : 'Book now'}
-          </Button>
-        </Group>
-      </Group>
-    </Card>
-  )
-}
 
+export const Route = createFileRoute('/')({
+  loader: ({ context }) =>
+    context.queryClient.ensureQueryData(
+      GetEventsQueryOption({ page: 1, limit: PAGE_SIZE })
+    ),
+  component: HomePage,
+})
 // ── HOME PAGE ──
 function HomePage() {
-  const [search, setSearch]             = useState('')
-  const [debouncedSearch]               = useDebouncedValue(search, 300)
-  const [dateRange, setDateRange]       = useState<[string | null, string | null]>([null, null])
+  const [search, setSearch]                 = useState('')
+  const [debouncedSearch]                   = useDebouncedValue(search, 300)
+  const [dateRange, setDateRange]           = useState<[string | null, string | null]>([null, null])
   const [activeCategory, setActiveCategory] = useState<Category>('all')
-  const [page, setPage]                 = useState(1)
-  const PAGE_SIZE = 6
+  const [page, setPage]                     = useState(1)
 
-  const isLoading      = false
-  const eventsResponse = {
-    data: MOCK_EVENTS,
-    meta: { total: MOCK_EVENTS.length, totalPages: 1, page: 1, limit: 6 },
-  }
+  const hasFilters = !!(debouncedSearch || dateRange[0] || dateRange[1] || activeCategory !== 'all')
 
-  const allEvents = eventsResponse?.data ?? []
-  const meta      = eventsResponse?.meta
-
-  const filtered = allEvents.filter(e => {
-    const matchesSearch =
-      e.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      (e.location?.name ?? '').toLowerCase().includes(debouncedSearch.toLowerCase())
-
-    const matchesCategory = activeCategory === 'all' || e.category === activeCategory
-
-    const [start, end] = dateRange
-    const matchesDate =
-      !start && !end         ? true
-      : start && !end        ? e.startsAt >= start
-      : !start && end        ? e.endsAt <= end
-      : start && end         ? e.startsAt >= start && e.endsAt <= end
-      : true
-
-    return matchesSearch && matchesCategory && matchesDate && e.status === 'published'
-  })
-
-  const featuredEvents = allEvents
-    .filter(e => e.isFeatured && e.status === 'published')
-    .slice(0, 5)
-
-  const hasFilters = debouncedSearch || dateRange[0] || dateRange[1] || activeCategory !== 'all'
-
-  const handleSearchChange  = (e: React.ChangeEvent<HTMLInputElement>) => { setSearch(e.target.value); setPage(1) }
-  const handleDateChange    = (value: [string | null, string | null])   => { setDateRange(value); setPage(1) }
-  const handleCategoryChange = (cat: Category)                          => { setActiveCategory(cat); setPage(1) }
+  const handleSearchChange   = (e: React.ChangeEvent<HTMLInputElement>) => { setSearch(e.target.value); setPage(1) }
+  const handleDateChange     = (value: [string | null, string | null])  => { setDateRange(value);       setPage(1) }
+  const handleCategoryChange = (cat: Category)                          => { setActiveCategory(cat);    setPage(1) }
+  const handleClearFilters   = ()                                        => { setSearch(''); setDateRange([null, null]); setActiveCategory('all'); setPage(1) }
 
   return (
     <div className="space-y-6 py-6">
@@ -703,73 +282,55 @@ function HomePage() {
           />
         </div>
 
-        <Group gap="xs" wrap="wrap">
-          {CATEGORIES.map(cat => (
-            <Button
-              key={cat}
-              size="xs"
-              radius="xl"
-              variant={activeCategory === cat ? 'filled' : 'light'}
-              color={cat === 'all' ? 'blue' : getCategoryColor(cat)}
-              onClick={() => handleCategoryChange(cat)}
-              className="capitalize"
+        <Group gap="xs" wrap="wrap" justify="space-between">
+          <Group gap="xs" wrap="wrap">
+            {CATEGORIES.map(cat => (
+              <Button
+                key={cat}
+                size="xs"
+                radius="xl"
+                variant={activeCategory === cat ? 'filled' : 'light'}
+                color={cat === 'all' ? 'blue' : getCategoryColor(cat)}
+                onClick={() => handleCategoryChange(cat)}
+                className="capitalize"
+              >
+                {cat}
+              </Button>
+            ))}
+          </Group>
+          {hasFilters && (
+            <button
+              className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+              onClick={handleClearFilters}
             >
-              {cat}
-            </Button>
-          ))}
+              Clear filters
+            </button>
+          )}
         </Group>
       </Paper>
 
-      {/* ── FEATURED ROW ── */}
-      {featuredEvents.length > 0 && !hasFilters && (
-        isLoading
-          ? <Stack gap="md"><FeaturedSkeleton /></Stack>
-          : <FeaturedEvents events={featuredEvents} />
-      )}
+      {/* ── SUSPENSE BOUNDARY ── */}
+      <Suspense
+        fallback={
+          <div className="space-y-6">
+            <FeaturedSkeleton />
+            <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
+              {Array.from({ length: PAGE_SIZE }).map((_, i) => <EventCardSkeleton key={i} />)}
+            </SimpleGrid>
+          </div>
+        }
+      >
+        <EventsList
+          page={page}
+          debouncedSearch={debouncedSearch}
+          dateRange={dateRange}
+          activeCategory={activeCategory}
+          hasFilters={hasFilters}
+          onPageChange={setPage}
+        />
+      </Suspense>
 
-      {/* ── RESULTS BAR ── */}
-      <Group justify="space-between" align="center">
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          {meta ? `${meta.total} event${meta.total !== 1 ? 's' : ''} found` : ''}
-        </p>
-        {hasFilters && (
-          <button
-            className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
-            onClick={() => { setSearch(''); setDateRange([null, null]); setActiveCategory('all'); setPage(1) }}
-          >
-            Clear filters
-          </button>
-        )}
-      </Group>
-
-      {/* ── GRID ── */}
-      {isLoading ? (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
-          {Array.from({ length: PAGE_SIZE }).map((_, i) => <EventCardSkeleton key={i} />)}
-        </SimpleGrid>
-      ) : filtered.length === 0 ? (
-        <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
-          <p className="font-semibold text-slate-700 dark:text-slate-200">No events found</p>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Try adjusting your search or filters</p>
-        </div>
-      ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
-          {filtered.map(e => <EventCard key={e.id} event={e} />)}
-        </SimpleGrid>
-      )}
-
-      {/* ── PAGINATION ── */}
-      {meta && meta.totalPages > 1 && (
-        <Group justify="center" mt="lg">
-          <Pagination
-            total={meta.totalPages}
-            value={page}
-            onChange={setPage}
-            radius="md"
-            color="blue"
-          />
-        </Group>
-      )}
     </div>
   )
 }
+
