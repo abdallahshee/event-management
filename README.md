@@ -137,8 +137,8 @@ event-management-app/
 ├── src/
 │   ├── app/                    # Next.js App Router routes, layouts, providers
 │   ├── components/             # Shared reusable UI components
-│   ├── db/                     # Database schemas, queries, validations, and typed models
-│   ├── server/                 # Server Actions and server-side auth helpers
+│   ├── db/                     # Drizzle schema, Supabase clients, Zod validations
+│   ├── server/                 # Server Actions ('use server') and server-side auth helpers
 │   ├── proxy.ts                # Next.js proxy (middleware) for Supabase session refresh
 │   └── styles.css              # Global CSS entry file
 │
